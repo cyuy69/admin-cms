@@ -21,7 +21,7 @@ public class DashboardController {
     @GetMapping("/dashboard")
     public String dashboard(Model model) {
         long count = announcementService.count();
-       model.addAttribute("content", "fragments/dashboard :: content");
+        model.addAttribute("content", "fragments/dashboard :: content");
         model.addAttribute("announcementCount", count);
         model.addAttribute("eventCount", 0);
         model.addAttribute("ticketCount", 0);

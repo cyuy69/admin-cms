@@ -32,6 +32,7 @@ function loadContent(event, link) {
         })
         .then((html) => {
             document.getElementById("main-content-area").innerHTML = html;
+            initActivityCards()
         })
         .catch((error) => {
             console.error("載入錯誤:", error);
@@ -76,6 +77,7 @@ window.addEventListener("DOMContentLoaded", () => {
             })
             .then((html) => {
                 document.getElementById("main-content-area").innerHTML = html;
+                initActivityCards()
             })
             .catch((error) => {
                 console.error("初始載入錯誤:", error);
