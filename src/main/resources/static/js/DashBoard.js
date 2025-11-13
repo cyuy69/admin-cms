@@ -1,12 +1,11 @@
-document.addEventListener("DOMContentLoaded", function () {
+function initActivityCards() {
   const container = document.getElementById("activityContainer");
   const empty = document.getElementById("emptyState");
+  if (!container || !empty) return;
 
   fetch("/api/events")
     .then(response => {
-      if (!response.ok) {
-        throw new Error("HTTP 錯誤：" + response.status);
-      }
+      if (!response.ok) throw new Error("HTTP 錯誤：" + response.status);
       return response.json();
     })
     .then(activities => {
@@ -17,22 +16,12 @@ document.addEventListener("DOMContentLoaded", function () {
       empty.style.display = "none";
 
       activities.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-
       activities.slice(0, 3).forEach(act => {
-        const imgUrl = act.images?.length > 0
-          ? act.images[0].imageUrl
-          : 'https://placehold.co/100x100?text=No+Image';
-
-        // 時間美觀用
+        const imgUrl = act.images?.[0]?.imageUrl || 'https://placehold.co/100x100?text=No+Image';
         const eventDate = new Date(act.eventTime);
         const eventTime = isNaN(eventDate)
           ? "未設定"
-          : `${eventDate.getFullYear()}年${String(eventDate.getMonth() + 1)
-            .padStart(2, '0')}月${String(eventDate.getDate())
-              .padStart(2, '0')}日 ${String(eventDate.getHours())
-                .padStart(2, '0')}:${String(eventDate.getMinutes())
-                  .padStart(2, '0')}`;
-
+          : `${eventDate.getFullYear()}年${String(eventDate.getMonth() + 1).padStart(2, '0')}月${String(eventDate.getDate()).padStart(2, '0')}日 ${String(eventDate.getHours()).padStart(2, '0')}:${String(eventDate.getMinutes()).padStart(2, '0')}`;
         const avgStay = act.avgStayTime
           ? `${Math.floor(act.avgStayTime / 60)}分${act.avgStayTime % 60}秒`
           : '—';
@@ -79,4 +68,4 @@ document.addEventListener("DOMContentLoaded", function () {
       empty.style.display = "block";
       empty.innerHTML = `<p style="color:red;">載入資料失敗，請稍後再試。</p>`;
     });
-});
+}

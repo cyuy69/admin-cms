@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.openticket.admin.service.AnnouncementService;
@@ -20,34 +21,41 @@ public class DashboardController {
     @GetMapping("/dashboard")
     public String dashboard(Model model) {
         long count = announcementService.count();
-        model.addAttribute("view", "dashboard");
+       model.addAttribute("content", "fragments/dashboard :: content");
         model.addAttribute("announcementCount", count);
         model.addAttribute("eventCount", 0);
         model.addAttribute("ticketCount", 0);
         return "index";
     }
 
-    // =============公告分頁=============
-    @GetMapping("/dashboard/announcement")
-    public String announcementPage(Model model) {
-        model.addAttribute("view", "fragments/announcement");
+    // =============後台分頁=============
+    @GetMapping("/dashboard/{sub}")
+    public String dashboardSub(@PathVariable String sub, Model model) {
+        String fragmentPath = switch (sub) {
+            case "anno" -> "fragments/announcement :: content";
+            case "event" -> "fragments/event :: content";
+            default -> "fragments/dashboard :: content";
+        };
+        model.addAttribute("content", fragmentPath);
         return "index";
     }
 
-    @GetMapping("/content/announcement")
-    public String announcementFragment(Model model) {
+    // =============活動=============
+    @GetMapping("/dashboard-frag")
+    public String eventPage(Model model) {
+        model.addAttribute("announcementCount", 10);
+        model.addAttribute("eventCount", 5);
+        model.addAttribute("ticketCount", 100);
+        return "fragments/dashboard :: content";
+    }
+
+    @GetMapping("/announcement-frag")
+    public String annoFragment(Model model) {
         model.addAttribute("pageTitle", "公告管理");
         return "fragments/announcement :: content";
     }
 
-    // =============活動分頁=============
-    @GetMapping("/dashboard/event")
-    public String eventPage(Model model) {
-        model.addAttribute("view", "fragments/event");
-        return "index";
-    }
-
-    @GetMapping("/content/event")
+    @GetMapping("/event-frag")
     public String eventFragment(Model model) {
         model.addAttribute("pageTitle", "活動管理");
         return "fragments/event :: content";

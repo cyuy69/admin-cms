@@ -1,0 +1,12 @@
+<div th:fragment="layout(content)">
+  <div class="layout">
+    <aside class="sidebar">
+      <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+    </aside>
+    <main class="main-content">
+      <div id="main-content-area">
+        <div th:replace="${content}">載入失敗：${content}</div>
+      </div>
+    </main>
+  </div>
+</div>

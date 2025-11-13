@@ -1,0 +1,37 @@
+<div th:fragment="content">
+  <div class="welcome">
+    <h2>歡迎使用後台管理系統</h2>
+    <p>輕鬆管理您的活動內容</p>
+  </div>
+
+  <div class="summary-boxes">
+    <div class="box">
+      <h3>發起的公告數量</h3>
+      <p th:text="${announcementCount}">0</p>
+    </div>
+    <div class="box">
+      <h3>發起的活動數量</h3>
+      <p th:text="${eventCount}">0</p>
+    </div>
+    <div class="box">
+      <h3>票券數量</h3>
+      <p th:text="${ticketCount}">0</p>
+    </div>
+  </div>
+
+  <main class="dashboard-container">
+    <section class="recent-section">
+      <div class="section-header">
+        <h2>近期：新增活動</h2>
+        <button class="refresh-btn">↻ 即時更新中</button>
+      </div>
+
+      <div class="card-container" id="activityContainer">
+        <!-- 無活動時顯示 -->
+        <div class="empty-state" id="emptyState">
+          <button class="add-btn">＋ 新增活動</button>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>

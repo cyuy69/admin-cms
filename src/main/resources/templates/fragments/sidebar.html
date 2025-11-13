@@ -1,0 +1,51 @@
+<div th:fragment="sidebar">
+  <ul>
+    <li>
+      <a
+        id="sidebar-home"
+        href="/admin/dashboard-frag"
+        onclick="loadContent(event, this)"
+        data-path=""
+        >首頁</a
+      >
+    </li>
+
+    <li>
+      <a
+        href="javascript:void(0);"
+        class="dropdown-toggle"
+        onclick="toggleDropdown('content-dropdown')"
+      >
+        內容管理
+      </a>
+      <ul id="content-dropdown" class="dropdown-menu">
+        <li>
+          <a
+            id="sidebar-anno"
+            href="/admin/announcement-frag"
+            data-path="announcement"
+            onclick="loadContent(event, this)"
+          >
+            ．公告管理
+          </a>
+        </li>
+
+        <li>
+          <a
+            id="sidebar-event"
+            href="/admin/event-frag"
+            data-path="event"
+            onclick="loadContent(event, this)"
+          >
+            ．活動管理
+          </a>
+        </li>
+      </ul>
+    </li>
+
+    <li><a href="/admin/about">平台介紹</a></li>
+    <li><a href="/admin/news">系統公告</a></li>
+    <li><a href="/admin/contact">聯絡我們</a></li>
+    <li><a href="/admin/settings">管理者區塊</a></li>
+  </ul>
+</div>

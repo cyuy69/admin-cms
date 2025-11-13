@@ -1,57 +1,18 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <title>後台管理系統</title>
 
-<head>
-  <meta charset="UTF-8" />
-  <title>後台管理系統</title>
+    <link rel="stylesheet" th:href="@{/css/LayoutStyle.css}" />
+    <link rel="stylesheet" th:href="@{/css/DashboardStyle.css}" />
+  </head>
 
-  <link rel="stylesheet" th:href="@{/css/DashboardStyle.css}" />
-  <link rel="stylesheet" th:href="@{/css/LayoutStyle.css}" />
-</head>
-
-<body>
-  <div class="sidebar">
-    <ul>
-      <li>
-        <a href="/admin/dashboard" onclick="loadContent('/admin/dashboard', this)">首頁</a>
-      </li>
-      <li th:classappend="${activeTab == 'announcement' or activeTab == 'event'} ? 'expanded'">
-        <a href="javascript:void(0);" class="dropdown-toggle"
-          onclick="event.preventDefault(); console.log('點了內容管理');toggleDropdown('content-dropdown')">
-          內容管理
-        </a>
-        <ul id="content-dropdown" class="dropdown-menu">
-          <li>
-            <a href="/admin/dashboard/announcement"
-              onclick="event.preventDefault(); loadContent('/admin/content/announcement', '/admin/dashboard/announcement', this)">
-              ．公告管理
-            </a>
-          </li>
-
-          <li>
-            <a href="/admin/dashboard/event"
-              onclick="event.preventDefault(); loadContent('/admin/content/event', '/admin/dashboard/event', this)">
-              ．活動管理
-            </a>
-          </li>
-
-        </ul>
-      </li>
-
-      <li><a href="/admin/about">平台介紹</a></li>
-      <li><a href="/admin/news">系統公告</a></li>
-      <li><a href="/admin/contact">聯絡我們</a></li>
-      <li><a href="/admin/settings">管理者區塊</a></li>
-    </ul>
-  </div>
-  <div class="main-content" id="main-content">
-    <div th:replace="${view} :: content"></div>
-  </div>
-
-  <script th:src="@{/js/jquery-3.7.1.js}"></script>
-  <script th:src="@{/js/LayoutScript.js}"></script>
-  <script th:src="@{/js/Announcement.js}"></script>
-  <script th:src="@{/js/DashBoard.js}"></script>
-</body>
-
+  <body>
+    <div th:replace="~{layout :: layout(~{__${content}__})}"></div>
+    <script th:src="@{/js/jquery-3.7.1.js}"></script>
+    <script th:src="@{/js/LayoutScript.js}"></script>
+    <script th:src="@{/js/Announcement.js}"></script>
+    <script th:src="@{/js/DashBoard.js}"></script>
+  </body>
 </html>

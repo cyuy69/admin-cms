@@ -1,65 +1,88 @@
-function loadContent(fragmentUrl, virtualUrl, el) {
-    // 更新網址但不重整
-    history.pushState(null, "", virtualUrl);
+function loadContent(event, link) {
+    console.log("我成功了")
+    event.preventDefault();
 
+    document.querySelectorAll(".sidebar li")
+        .forEach((li) => li.classList.remove("active"));
+
+    const li = link.closest("li");
+    const isDropdownToggle = link.classList.contains("dropdown-toggle");
+
+    if (li) li.classList.add("active");
+
+    if (isDropdownToggle) {
+        const dropdown = li.querySelector(".dropdown-menu");
+        if (dropdown) dropdown.classList.add("show");
+        return; // 不載入內容，只展開
+    }
+
+    const url = link.getAttribute("href");
+    const logicalPath = link.dataset.path || "";
+
+
+    history.pushState(
+        null,
+        "",
+        "/admin/dashboard" + (logicalPath ? "/" + logicalPath : ""));
     // 載入 fragment
-    fetch(fragmentUrl)
-        .then(res => {
-            if (!res.ok) throw new Error("Fragment 加載失敗：" + fragmentUrl);
-            return res.text();
+    fetch(url)
+        .then((response) => {
+            if (!response.ok) throw new Error("載入失敗");
+            return response.text();
         })
-        .then(html => {
-            document.getElementById("main-content").innerHTML = html;
-
-            // active 樣式處理
-            document.querySelectorAll(".sidebar li").forEach(li => li.classList.remove("active"));
-            if (el && el.parentElement) el.parentElement.classList.add("active");
-
-            // 展開 dropdown
-            const dropdown = el ? el.closest(".dropdown-menu") : null;
-            if (dropdown) {
-                dropdown.classList.add("show");
-                const parentLi = dropdown.closest("li");
-                parentLi.classList.add("expanded");
-            }
-
-            if (virtualUrl === "/admin/dashboard/announcement") {
-                initAnnouncementFragment();
-            }
+        .then((html) => {
+            document.getElementById("main-content-area").innerHTML = html;
         })
-        .catch(err => console.error(err.message));
+        .catch((error) => {
+            console.error("載入錯誤:", error);
+        });
 }
 
-// 返回鍵
-window.addEventListener("popstate", function () {
-    const path = location.pathname;
-    if (path === "/admin/dashboard/announcement") {
-        loadContent("/admin/content/announcement", path);
-    } else if (path === "/admin/dashboard/event") {
-        loadContent("/admin/content/event", path);
-    } else {
-        window.location.href = "/admin/dashboard";
-    }
-});
 
-// 重新整理
 window.addEventListener("DOMContentLoaded", () => {
-    const path = window.location.pathname;
-    if (path === "/admin/dashboard/announcement") {
-        loadContent("/admin/content/announcement", path);
-    } else if (path === "/admin/dashboard/event") {
-        loadContent("/admin/content/event", path);
-    } else {
-        console.log("停留在 /admin/dashboard，未載入 fragment。");
-    }
-});
+    const path = location.pathname;
 
-function initAnnouncementFragment() {
-    $.get("/api/announcements", function (data) {
-        const html = $.map(data, ann => `<div><strong>${ann.title}</strong><p>${ann.content}</p><hr/></div>`).join("");
-        $("#anno-list").html(html);
+    // 清除 active 樣式
+    document
+        .querySelectorAll(".sidebar li")
+        .forEach((li) => li.classList.remove("active"));
+
+    // 還原 dropdown 展開狀態
+    document.querySelectorAll(".dropdown-menu").forEach((menu) => {
+        const id = menu.id;
+        const state = localStorage.getItem("dropdown:" + id);
+        if (state === "open") {
+            menu.classList.add("show");
+        }
     });
-}
+
+    document.querySelectorAll("[data-path]").forEach((link) => {
+        const logicalPath = link.dataset.path;
+        const expectedPath = "/admin/dashboard" + (logicalPath ? "/" + logicalPath : "");
+        if (path === expectedPath) {
+            const li = link.closest("li");
+            if (li) li.classList.add("active");
+            const dropdown = link.closest(".dropdown-menu");
+            if (dropdown) dropdown.classList.add("show");
+        }
+    });
+
+    // ✅ 初始載入 dashboard fragment（僅限首頁）
+    if (path === "/admin/dashboard") {
+        fetch("/admin/dashboard-frag")
+            .then((response) => {
+                if (!response.ok) throw new Error("載入失敗");
+                return response.text();
+            })
+            .then((html) => {
+                document.getElementById("main-content-area").innerHTML = html;
+            })
+            .catch((error) => {
+                console.error("初始載入錯誤:", error);
+            });
+    }
+
+});
 
 
 function toggleDropdown(id) {
