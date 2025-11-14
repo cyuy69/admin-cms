@@ -1,7 +1,7 @@
 package com.openticket.admin.service;
 
 import com.openticket.admin.entity.Announcement;
-import com.openticket.admin.repository.AnnouncementRepository;
+import com.openticket.admin.repository.AnnoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,7 +11,7 @@ import java.util.List;
 public class AnnouncementService {
 
     @Autowired
-    private AnnouncementRepository repository;
+    private AnnoRepository repository;
 
     // 查詢所有公告
     public List<Announcement> getAll() {
