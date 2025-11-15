@@ -1,15 +1,14 @@
 <div th:fragment="content">
-  <h2 th:text="${pageTitle}">公告管理</h2>
+  <h2>公告管理</h2>
 
   <form id="anno-form">
+    <input type="hidden" id="ann-id">
     <input type="text" id="title" placeholder="標題" required /><br><br>
     <textarea id="content" placeholder="內容" required></textarea><br>
-    <button type="submit">新增公告</button>
+    <button type="submit" id="anno-submit-btn">新增公告</button>
   </form>
 
   <hr>
 
   <div id="anno-list"></div>
-
-
 </div>

@@ -1,49 +1,55 @@
 <div th:fragment="sidebar">
   <ul>
     <li>
-      <a
-        id="sidebar-home"
-        href="/admin/dashboard-frag"
-        onclick="loadContent(event, this)"
-        data-path=""
-        >首頁</a
-      >
+      <a id="sidebar-home" href="/admin/dashboard-frag" onclick="loadContent(event, this)" data-path="">首頁</a>
     </li>
 
     <li>
-      <a
-        href="javascript:void(0);"
-        class="dropdown-toggle"
-        onclick="toggleDropdown('content-dropdown')"
-      >
+      <a href="javascript:void(0);" class="dropdown-toggle" onclick="toggleDropdown('content-dropdown')">
         內容管理
       </a>
       <ul id="content-dropdown" class="dropdown-menu">
         <li>
-          <a
-            id="sidebar-anno"
-            href="/admin/announcement-frag"
-            data-path="announcement"
-            onclick="loadContent(event, this)"
-          >
+          <a id="sidebar-anno" href="/admin/announcement-frag" data-path="announcement"
+            onclick="loadContent(event, this)">
             ．公告管理
           </a>
         </li>
 
         <li>
-          <a
-            id="sidebar-event"
-            href="/admin/event-frag"
-            data-path="event"
-            onclick="loadContent(event, this)"
-          >
+          <a id="sidebar-event" href="/admin/event-frag" data-path="event" onclick="loadContent(event, this)">
             ．活動管理
           </a>
         </li>
       </ul>
     </li>
 
-    <li><a href="/admin/about">平台介紹</a></li>
+    <li>
+      <a href="javascript:void(0)" class="dropdown-toggle" onclick="toggleDropdown('analytics-dropdown')">
+        數據統計
+      </a>
+      <ul id="analytics-dropdown" class="dropdown-menu">
+        <li>
+          <a id="sidebar-analytics-traffic" href="/admin/analytics/traffic-frag" data-path="analytics/traffic"
+            onclick="loadContent(event, this)">
+            ．流量與銷售分析
+          </a>
+        </li>
+        <li>
+          <a id="sidebar-analytics-consumer" href="/admin/analytics/consumer-frag" data-path="analytics/consumer"
+            onclick="loadContent(event, this)">
+            ．用戶分析
+          </a>
+        </li>
+        <li>
+          <a id="sidebar-analytics-summary" href="/admin/analytics/summary-frag" data-path="analytics/summary"
+            onclick="loadContent(event, this)">
+            ．成效摘要與比較
+          </a>
+        </li>
+      </ul>
+    </li>
+
     <li><a href="/admin/news">系統公告</a></li>
     <li><a href="/admin/contact">聯絡我們</a></li>
     <li><a href="/admin/settings">管理者區塊</a></li>

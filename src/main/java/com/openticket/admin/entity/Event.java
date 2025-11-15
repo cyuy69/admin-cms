@@ -36,7 +36,7 @@ public class Event {
     private String title;
     private String description;
 
-    @Column(name = "create_at")
+    @Column(name = "created_at")
     private LocalDateTime createdAt;
 
     @Column(name = "event_time")

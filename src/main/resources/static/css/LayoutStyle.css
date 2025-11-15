@@ -44,10 +44,6 @@
         transition: max-height 0.5s ease;
     }
 
-    .dropdown-menu.show {
-        max-height: 2px;
-    }
-
     .dropdown-menu li {
         padding: 0;
         margin: 0;

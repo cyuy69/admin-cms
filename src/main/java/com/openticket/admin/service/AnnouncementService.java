@@ -30,4 +30,16 @@ public class AnnouncementService {
     public long count() {
         return repository.count();
     }
+
+    public Announcement getById(Long id) {
+        if (id == null)
+            return null;
+        return repository.findById(id).orElse(null);
+    }
+
+    @SuppressWarnings("null")
+    public void delete(Long id) {
+        repository.deleteById(id);
+    }
+
 }

@@ -7,6 +7,10 @@ function loadContent(event, link) {
     const li = link.closest("li");
     const isDropdownToggle = link.classList.contains("dropdown-toggle");
 
+    if (!isDropdownToggle) {
+        localStorage.setItem("activeLink", link.id);
+    }
+
     if (li) li.classList.add("active");
 
     if (isDropdownToggle) {
@@ -15,6 +19,7 @@ function loadContent(event, link) {
         return; // 不載入內容，只展開
     }
 
+    // ------- AJAX 載入 fragment -------
     const url = link.getAttribute("href");
     const logicalPath = link.dataset.path || "";
 
@@ -23,7 +28,7 @@ function loadContent(event, link) {
         null,
         "",
         "/admin/dashboard" + (logicalPath ? "/" + logicalPath : ""));
-    // 載入 fragment
+
     fetch(url)
         .then((response) => {
             if (!response.ok) throw new Error("載入失敗");
@@ -31,7 +36,7 @@ function loadContent(event, link) {
         })
         .then((html) => {
             document.getElementById("main-content-area").innerHTML = html;
-            initActivityCards()
+            pageInitializer();
         })
         .catch((error) => {
             console.error("載入錯誤:", error);
@@ -40,85 +45,76 @@ function loadContent(event, link) {
 
 
 window.addEventListener("DOMContentLoaded", () => {
-    const path = location.pathname;
+    pageInitializer()
 
-    // 清除 active 樣式
-    document
-        .querySelectorAll(".sidebar li")
-        .forEach((li) => li.classList.remove("active"));
+    // 收和所有 dropdown
+    document.querySelectorAll(".dropdown-menu").forEach((menu) => {
+        menu.classList.remove("show");
+        menu.style.maxHeight = "0";
+    });
 
-    // 還原 dropdown 展開狀態
+    // 還原 dropdown 狀態
     document.querySelectorAll(".dropdown-menu").forEach((menu) => {
         const id = menu.id;
         const state = localStorage.getItem("dropdown:" + id);
         if (state === "open") {
             menu.classList.add("show");
+            menu.style.maxHeight = "none";
         }
     });
 
-    document.querySelectorAll("[data-path]").forEach((link) => {
-        const logicalPath = link.dataset.path;
-        const expectedPath = "/admin/dashboard" + (logicalPath ? "/" + logicalPath : "");
-        if (path === expectedPath) {
+    // 還原active樣式
+    const activeId = localStorage.getItem("activeLink");
+    if (activeId) {
+        const link = document.getElementById(activeId);
+        if (link) {
             const li = link.closest("li");
             if (li) li.classList.add("active");
+
             const dropdown = link.closest(".dropdown-menu");
             if (dropdown) dropdown.classList.add("show");
         }
-    });
-
-    // ✅ 初始載入 dashboard fragment（僅限首頁）
-    if (path === "/admin/dashboard") {
-        fetch("/admin/dashboard-frag")
-            .then((response) => {
-                if (!response.ok) throw new Error("載入失敗");
-                return response.text();
-            })
-            .then((html) => {
-                document.getElementById("main-content-area").innerHTML = html;
-                initActivityCards()
-            })
-            .catch((error) => {
-                console.error("初始載入錯誤:", error);
-            });
     }
-
 });
+
 
 
 function toggleDropdown(id) {
     const menu = document.getElementById(id);
     const parentLi = menu.closest("li");
+    const isOpening = !menu.classList.contains("show");
 
-    if (menu.classList.contains("show")) {
-        // 正在收合
-        const currentHeight = menu.scrollHeight; // 目前高度
-        menu.style.maxHeight = currentHeight + "px"; // 先固定住
+    // 儲存狀態
+    localStorage.setItem("dropdown:" + id, isOpening ? "open" : "closed");
+
+    if (!isOpening) {
+        // === 收合 ===
+        const currentHeight = menu.scrollHeight;
+        menu.style.maxHeight = currentHeight + "px";
         requestAnimationFrame(() => {
-            menu.style.maxHeight = "0"; // 再收回去
+            menu.style.maxHeight = "0";
         });
         menu.classList.remove("show");
         parentLi.classList.remove("expanded");
-
-    } else {
-        // 正在展開
-        menu.classList.add("show");
-        const targetHeight = menu.scrollHeight + "px"; // 真實內容高度
-        menu.style.maxHeight = "0"; // 從0開始
-        requestAnimationFrame(() => {
-            menu.style.maxHeight = targetHeight;
-        });
-
-        parentLi.classList.add("expanded");
-
-        // 動畫結束後清除 maxHeight 限制，避免高度被鎖死
-        menu.addEventListener("transitionend", function handler() {
-            if (menu.classList.contains("show")) {
-                menu.style.maxHeight = "none";
-            }
-            menu.removeEventListener("transitionend", handler);
-        });
+        return;
     }
 
+    // === 展開 ===
+    menu.classList.add("show");
+    const targetHeight = menu.scrollHeight + "px";
+    menu.style.maxHeight = "0";
+    requestAnimationFrame(() => {
+        menu.style.maxHeight = targetHeight;
+    });
+
+    menu.addEventListener("transitionend", function handler() {
+        if (menu.classList.contains("show")) {
+            menu.style.maxHeight = "none";
+        }
+        menu.removeEventListener("transitionend", handler);
+    });
+
+    parentLi.classList.add("expanded");
 }
+
 
