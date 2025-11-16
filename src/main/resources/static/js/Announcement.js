@@ -1,4 +1,5 @@
 function initAnnouncement() {
+    let editingId = null;
 
     loadAnnouncements();
 
@@ -12,83 +13,94 @@ function initAnnouncement() {
             let html = data.map(ann => `
                 <div class="ann-item" data-id="${ann.id}">
                     <strong>${ann.title}</strong>
-
-                    <div class="btn-group normal-mode">
-                        <button class="edit-btn">編輯</button>
-                    </div>
-
-                    <div class="btn-group edit-mode" style="display:none;">
-                        <button class="confirm-edit-btn">確認</button>
-                        <button class="cancel-edit-btn">取消</button>
-                        <button class="delete-btn">刪除</button>
-                    </div>
-
+                    <button class="edit-btn">編輯</button>
                     <p>${ann.content}</p>
                     <hr>
                 </div>
-                `).join("");
+            `).join("");
 
             $("#anno-list").html(html);
-        })
+        });
     }
 
-    // 表單送出
+    // 表單送出（新增或編輯）
     $(document).off("submit", "#anno-form").on("submit", "#anno-form", function (e) {
         e.preventDefault();
 
-        let id = $("#ann-id").val(); // 有id時可以編輯
-        let title = $("#title").val();
-        let content = $("#content").val();
+        const id = editingId;
+        const title = $("#title").val();
+        const content = $("#content").val();
 
-        let method = id ? "PUT" : "POST";
-        let url = id ? `/api/announcements/${id}` : "/api/announcements";
-
-        // console.log("表單送出", { title, content });
+        const method = id ? "PUT" : "POST";
+        const url = id ? `/api/announcements/${id}` : "/api/announcements";
 
         $.ajax({
-            url: url,
-            method: method,
+            url,
+            method,
             contentType: "application/json",
             data: JSON.stringify({ title, content }),
             success: function () {
-
-                resetForm()
+                resetForm();
                 loadAnnouncements();
             }
         });
     });
 
+    // 點編輯
     $(document).off("click", ".edit-btn").on("click", ".edit-btn", function () {
-        let container = $(this).closest(".ann-item");
-        let id = container.data("id");
-        let title = container.find("strong").text();
-        let content = container.find("p").text();
+        const $btn = $(this);
+        const container = $btn.closest(".ann-item");
+        const id = container.data("id");
+
+        // 如果現在點的是「取消」
+        if ($btn.text() === "取消") {
+            resetForm();
+            return;
+        }
+
+        const title = container.find("strong").text();
+        const content = container.find("p").text();
+
+        editingId = id;
 
         $("#ann-id").val(id);
         $("#title").val(title);
         $("#content").val(content);
 
-        $("#anno-submit-btn").text("編輯公告");
-    })
+        $("#anno-submit-btn").text("確認編輯");
+        $("#cancel-edit-btn, #delete-edit-btn").show();
 
-    $(document).off("click", ".del-btn").on("click", ".del-btn", function () {
-        let container = $(this).closest(".ann-item");
-        let id = container.data("id");
+        // 將所有編輯按鈕恢復為「編輯」
+        $(".edit-btn").text("編輯");
 
+        // 將目前這顆改為「取消」
+        $btn.text("取消");
+    });
+
+
+    // 刪除公告
+    $("#delete-edit-btn").on("click", function () {
+        if (!editingId) return;
         if (!confirm("確定要刪除此公告嗎？")) return;
 
         $.ajax({
-            url: `/api/announcements/${id}`,
+            url: `/api/announcements/${editingId}`,
             method: "DELETE",
             success: function () {
+                resetForm();
                 loadAnnouncements();
             }
         });
     });
 
+    // 重設表單
     function resetForm() {
+        editingId = null;
         $("#anno-form")[0].reset();
         $("#ann-id").val("");
         $("#anno-submit-btn").text("新增公告");
+        $("#cancel-edit-btn, #delete-edit-btn").hide();
+
+        $(".edit-btn").text("編輯");
     }
 }

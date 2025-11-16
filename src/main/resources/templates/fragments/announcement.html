@@ -5,7 +5,12 @@
     <input type="hidden" id="ann-id">
     <input type="text" id="title" placeholder="標題" required /><br><br>
     <textarea id="content" placeholder="內容" required></textarea><br>
-    <button type="submit" id="anno-submit-btn">新增公告</button>
+
+    <div id="form-buttons" style="display: flex; gap: 10px;">
+      <button type="submit" id="anno-submit-btn">新增公告</button>
+      <button type="button" id="cancel-edit-btn" style="display:none;">取消編輯</button>
+      <button type="button" id="delete-edit-btn" style="display:none;">刪除公告</button>
+    </div>
   </form>
 
   <hr>
