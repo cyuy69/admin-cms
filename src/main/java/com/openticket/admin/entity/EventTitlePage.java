@@ -19,7 +19,7 @@ public class EventTitlePage {
 
     @ManyToOne
     @JoinColumn(name = "event_id", nullable = false)
-    @JsonBackReference
+    @JsonBackReference("event-image")
     private Event event;
 
     @Column(name = "image_url")

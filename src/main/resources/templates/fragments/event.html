@@ -2,12 +2,7 @@
   <h2>活動管理</h2>
   <section>
     <h3>新增活動</h3>
-    <form
-      id="eventForm"
-      th:action="@{/event/create}"
-      method="post"
-      enctype="multipart/form-data"
-    >
+    <form id="eventForm" th:action="@{/api/events/create}" method="post" enctype="multipart/form-data">
       <div>
         <label for="cover">活動封面：</label>
         <input type="file" id="cover" name="cover" accept="image/*" />
@@ -18,12 +13,7 @@
       </div>
       <div>
         <label for="eventStart">活動開始日期：</label>
-        <input
-          type="datetime-local"
-          id="eventStart"
-          name="eventStart"
-          required
-        />
+        <input type="datetime-local" id="eventStart" name="eventStart" required />
       </div>
       <div>
         <label for="eventEnd">活動結束日期：</label>
@@ -31,25 +21,31 @@
       </div>
       <div>
         <label for="ticketStart">售票開始日期：</label>
-        <input
-          type="datetime-local"
-          id="ticketStart"
-          name="ticketStart"
-          required
-        />
+        <input type="datetime-local" id="ticketStart" name="ticketStart" required />
       </div>
       <div>
         <label for="ticketEnd">售票結束日期：</label>
         <input type="datetime-local" id="ticketEnd" name="ticketEnd" required />
       </div>
       <div>
-        <label for="location">活動地點：</label>
-        <input type="text" id="location" name="location" required />
+        <label for="address">活動地點：</label>
+        <input type="text" id="address" name="address" required />
       </div>
       <div>
         <label for="description">活動描述：</label>
         <textarea id="description" name="description" rows="5"></textarea>
         <!-- TinyMCE 初始化在 JS 中處理 -->
+      </div>
+      <div class="dropdown-checkbox">
+        <label>票種選擇：</label>
+        <div class="dropdown">
+          <button type="button" onclick="toggleDropdown()">選擇票種 ▼</button>
+          <div id="ticketDropdown" class="dropdown-content">
+            <label><input type="checkbox" name="ticketTypes" value="general" /> 一般票</label>
+            <label><input type="checkbox" name="ticketTypes" value="child" /> 兒童票</label>
+            <label><input type="checkbox" name="ticketTypes" value="vip" /> VIP票</label>
+          </div>
+        </div>
       </div>
       <div>
         <button type="button">預覽</button>
@@ -65,4 +61,29 @@
       <!-- AJAX 載入活動列表 -->
     </div>
   </section>
+
+  <script>
+    document.getElementById("eventForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const form = e.target;
+      const formData = new FormData(form);
+
+      fetch("/api/events/create", {
+        method: "POST",
+        body: formData,
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          console.log("活動建立成功：", data);
+          alert("活動已建立！");
+          window.location.href = "/admin/event";
+        })
+        .catch((err) => {
+          console.error("建立失敗：", err);
+          alert("建立活動失敗！");
+        });
+    });
+  </script>
+
 </div>

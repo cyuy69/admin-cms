@@ -15,6 +15,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
@@ -39,16 +40,16 @@ public class Event {
     private LocalDateTime createdAt;
 
     @Column(name = "event_start")
-    private LocalDateTime eventTime;
+    private LocalDateTime eventStart;
 
     @Column(name = "event_end")
-    private LocalDateTime eventEndTime;
+    private LocalDateTime eventEnd;
 
     @Column(name = "sale_start")
-    private LocalDateTime saleStart;
+    private LocalDateTime ticketStart;
 
     @Column(name = "sale_end")
-    private LocalDateTime saleEnd;
+    private LocalDateTime ticketEnd;
 
     private Integer views;
 
@@ -62,10 +63,15 @@ public class Event {
 
     @ManyToOne
     @JoinColumn(name = "status_id", nullable = false)
-    private EventStatus status;
+    private EventStatus statusId;
 
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL)
     @JsonManagedReference("event-image")
     private List<EventTitlePage> images = new ArrayList<>();
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
+    }
 
 }

@@ -1,6 +1,9 @@
 package com.openticket.admin.entity;
 
 import java.time.LocalDateTime;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -29,6 +32,7 @@ public class DetailImage {
 
     @ManyToOne
     @JoinColumn(name = "detail_id", nullable = false)
+    @JsonBackReference("detail-image")
     private EventDetail eventDetail;
 
     @PrePersist

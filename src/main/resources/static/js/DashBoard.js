@@ -25,6 +25,11 @@ function initActivityCards() {
           ? `${Math.floor(act.avgStayTime / 60)}分${act.avgStayTime % 60}秒`
           : '—';
 
+        const createdDate = new Date(act.createdAt);
+        const createdTime = isNaN(createdDate.getTime())
+          ? "未知時間"
+          : `${createdDate.getFullYear()}年${createdDate.getMonth() + 1}月${createdDate.getDate()}號 ${String(createdDate.getHours()).padStart(2, '0')}:${String(createdDate.getMinutes()).padStart(2, '0')}`;
+
         const cardHtml = `
           <div class="activity-card">
             <div class="card-top">
@@ -32,8 +37,10 @@ function initActivityCards() {
               <div class="card-content">
                 <h3>${act.title}</h3>
                 <div class="meta">
-                  <span class="created">建立：${act.createdAt || "未知時間"}</span>
-                  <span class="event-time">活動時間：<wbr>${eventTime}</span>
+                  <span class="created">建立：</span>
+                  ${createdTime}
+                  <span class="event-time">活動時間：<wbr></span>
+                  ${eventTime}
                 </div>
               </div>
             </div>
