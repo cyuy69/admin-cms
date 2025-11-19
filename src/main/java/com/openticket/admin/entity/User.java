@@ -1,10 +1,20 @@
 package com.openticket.admin.entity;
 
-import jakarta.persistence.*;
+import java.time.LocalDateTime;
+import java.util.List;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "user")
@@ -31,5 +41,11 @@ public class User {
 
     @OneToOne(mappedBy = "user")
     private CompanyProfile companyProfile;
+
+    @OneToMany(mappedBy = "user")
+    private List<Announcement> announcements;
+
+    @OneToMany(mappedBy = "user")
+    private List<Event> events;
 
 }

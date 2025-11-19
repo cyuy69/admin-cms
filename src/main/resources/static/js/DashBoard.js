@@ -16,19 +16,20 @@ function initActivityCards() {
       activities.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
       activities.slice(0, 3).forEach(act => {
         const imgUrl = act.images?.[0]?.imageUrl || 'https://placehold.co/100x100?text=No+Image';
-        const eventDate = new Date(act.eventTime);
-        const eventTime = isNaN(eventDate)
+        const startDate = new Date(act.eventStart);
+        const startTime = isNaN(startDate)
           ? "未設定"
-          : `${eventDate.getFullYear()}年${String(eventDate.getMonth() + 1).padStart(2, '0')}月${String(eventDate.getDate()).padStart(2, '0')}日 ${String(eventDate.getHours()).padStart(2, '0')}:${String(eventDate.getMinutes()).padStart(2, '0')}`;
+          : `${startDate.getFullYear()}年${String(startDate.getMonth() + 1).padStart(2, '0')}月${String(startDate.getDate()).padStart(2, '0')}日 ${String(startDate.getHours()).padStart(2, '0')}:${String(startDate.getMinutes()).padStart(2, '0')}`;
+
+        const endDate = new Date(act.eventEnd);
+        const endTime = isNaN(endDate)
+          ? "未設定"
+          : `${endDate.getFullYear()}年${String(endDate.getMonth() + 1).padStart(2, '0')}月${String(endDate.getDate()).padStart(2, '0')}日 ${String(endDate.getHours()).padStart(2, '0')}:${String(endDate.getMinutes()).padStart(2, '0')}`;
+
 
         const avgStay = act.avgStayTime
           ? `${Math.floor(act.avgStayTime / 60)}分${act.avgStayTime % 60}秒`
           : '—';
-
-        const createdDate = new Date(act.createdAt);
-        const createdTime = isNaN(createdDate.getTime())
-          ? "未知時間"
-          : `${createdDate.getFullYear()}年${createdDate.getMonth() + 1}月${createdDate.getDate()}號 ${String(createdDate.getHours()).padStart(2, '0')}:${String(createdDate.getMinutes()).padStart(2, '0')}`;
 
         const cardHtml = `
           <div class="activity-card">
@@ -37,10 +38,10 @@ function initActivityCards() {
               <div class="card-content">
                 <h3>${act.title}</h3>
                 <div class="meta">
-                  <span class="created">建立：</span>
-                  ${createdTime}
-                  <span class="event-time">活動時間：<wbr></span>
-                  ${eventTime}
+                  <span class="created">活動開始時間：</span>
+                  ${startTime}
+                  <span class="event-time">活動結束時間：<wbr></span>
+                  ${endTime}
                 </div>
               </div>
             </div>

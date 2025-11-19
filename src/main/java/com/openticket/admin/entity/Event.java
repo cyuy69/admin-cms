@@ -30,9 +30,9 @@ public class Event {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "company_id", nullable = false)
+    @JoinColumn(name = "user_id", nullable = false)
     @JsonManagedReference
-    private CompanyProfile company;
+    private User user;
 
     private String title, address;
 

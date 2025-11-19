@@ -1,11 +1,12 @@
 package com.openticket.admin.service;
 
-import com.openticket.admin.entity.Announcement;
-import com.openticket.admin.repository.AnnoRepository;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import com.openticket.admin.entity.Announcement;
+import com.openticket.admin.repository.AnnoRepository;
 
 @Service
 public class AnnouncementService {
@@ -36,8 +37,6 @@ public class AnnouncementService {
             return null;
         return repository.findById(id).orElse(null);
     }
-
-    @SuppressWarnings("null")
     public void delete(Long id) {
         repository.deleteById(id);
     }
