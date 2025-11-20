@@ -7,6 +7,7 @@ function initEvent() {
     initTabSwitching();
 }
 
+// 活動建立送出按鈕初始化
 function initEventFormSubmit() {
     const form = document.getElementById("eventForm");
     if (!form) return;
@@ -14,6 +15,25 @@ function initEventFormSubmit() {
     form.addEventListener("submit", function (e) {
         e.preventDefault();
         const formData = new FormData(form);
+
+        const selectedTickets = [];
+        const rows = document.querySelectorAll("#ticketSelectTbody tr");
+
+        rows.forEach((row) => {
+            const checkbox = row.querySelector(".ticket-checkbox");
+            if (!checkbox.checked) return;
+
+            const priceInput = row.querySelector(".ticket-custom-price");
+            const limitInput = row.querySelector(".ticket-custom-limit");
+
+            selectedTickets.push({
+                ticketTemplateId: parseInt(checkbox.value, 10),
+                customPrice: priceInput.value ? parseFloat(priceInput.value) : null,
+                customLimit: limitInput.value ? parseInt(limitInput.value) : null,
+            });
+        });
+
+        formData.append("eventTicketsJson", JSON.stringify(selectedTickets));
 
         fetch("/api/events/create", {
             method: "POST",
@@ -31,6 +51,7 @@ function initEventFormSubmit() {
     });
 }
 
+// 下拉選單初始化
 function initTicketDropdownToggle() {
     const toggleBtn = document.getElementById("ticketDropdownToggleBtn");
     const dropdown = document.getElementById("ticketDropdown");
@@ -43,6 +64,7 @@ function initTicketDropdownToggle() {
     }
 }
 
+// 票種載入變成表格格式，而不是一堆 label
 function initTicketTypeLoader() {
     const dropdown = document.getElementById("ticketDropdown");
     if (!dropdown) return;
@@ -50,19 +72,62 @@ function initTicketTypeLoader() {
     fetch("/api/tickets")
         .then((res) => res.json())
         .then((ticketTypes) => {
-            dropdown.innerHTML = "";
+
+            // ⭐ 生成表格標頭
+            dropdown.innerHTML = `
+                <table class="ticket-select-table" style="width:100%; border-collapse: collapse;">
+                    <thead>
+                        <tr>
+                            <th style="border:1px solid #ccc; padding:6px;">啟用</th>
+                            <th style="border:1px solid #ccc; padding:6px;">票種名稱</th>
+                            <th style="border:1px solid #ccc; padding:6px;">活動票價</th>
+                            <th style="border:1px solid #ccc; padding:6px;">活動限量</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ticketSelectTbody"></tbody>
+                </table>
+            `;
+
+            const tbody = document.getElementById("ticketSelectTbody");
 
             ticketTypes.forEach((ticket) => {
-                const label = document.createElement("label");
-                label.innerHTML = `
-            <input type="checkbox" name="ticketTypes" value="${ticket.id}" />
-            ${ticket.name}（$${ticket.price}）${ticket.isLimited ? `限量 ${ticket.limitQuantity} 張` : "不限張數"
-                    }
-        `;
-                dropdown.appendChild(label);
+                const row = document.createElement("tr");
+
+                row.innerHTML = `
+                    <td style="border:1px solid #ccc; padding:6px; text-align:center;">
+                        <input type="checkbox" class="ticket-checkbox" value="${ticket.id}">
+                    </td>
+
+                    <td style="border:1px solid #ccc; padding:6px;">
+                        ${ticket.name}
+                        ${ticket.isDefault ? "(自訂)" : "(模板)"}
+                        <br>
+                        <small>模板價：$${ticket.price}</small>
+                        ${ticket.isLimited ? `<br><small>模板限量：${ticket.limitQuantity} 張</small>` : ""}
+                    </td>
+
+                    <td style="border:1px solid #ccc; padding:6px; text-align:center;">
+                        <input 
+                            type="number" 
+                            class="ticket-custom-price" 
+                            placeholder="${ticket.price}"
+                            style="width:80px;">
+                    </td>
+
+                    <td style="border:1px solid #ccc; padding:6px; text-align:center;">
+                        <input 
+                            type="number" 
+                            class="ticket-custom-limit"
+                            placeholder="${ticket.isLimited ? ticket.limitQuantity : ''}"
+                            style="width:80px;">
+                    </td>
+                `;
+
+                tbody.appendChild(row);
             });
         });
 }
+
 
 function initLimitQuantityToggle() {
     const isLimitedSelect = document.getElementById("isLimited");

@@ -8,7 +8,6 @@ import java.util.List;
 
 @Service
 public class EventService {
-
     @Autowired
     private EventRepository eventRepository;
 

@@ -44,7 +44,7 @@ public class User {
     private Boolean isActive;
 
     @OneToOne(mappedBy = "user")
-    private CompanyProfile companyProfile;
+    private UserProfile companyProfile;
 
     @OneToMany(mappedBy = "user")
     @JsonBackReference("announcement-user")

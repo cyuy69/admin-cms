@@ -18,6 +18,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -70,6 +71,43 @@ public class Event {
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
+    }
+
+    @Transient
+    public String getDynamicStatus() {
+        // 1. 已取消優先
+        if (this.statusId != null && "已取消".equals(this.statusId.getStatus())) {
+            return "已取消";
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+
+        // 2. 先把時間欄位抓出來，避免一直呼叫 getter
+        LocalDateTime sale = this.ticketStart;
+        LocalDateTime start = this.eventStart;
+        LocalDateTime end = this.eventEnd;
+
+        // 3. 如果舊資料沒有設定時間，避免 NPE，直接用資料庫狀態 or 給預設字串
+        if (sale == null || start == null || end == null) {
+            // 如果你希望顯示資料庫裡的中文狀態可以這樣：
+            if (this.statusId != null && this.statusId.getStatus() != null) {
+                return this.statusId.getStatus(); // ex. "未開放"、"活動進行中"...
+            }
+            // 或者直接顯示「未設定」
+            return "未設定";
+        }
+
+        // 4. 以下才是正常的時間判斷
+        if (now.isBefore(sale)) {
+            return "未開放";
+        }
+        if (now.isBefore(start)) {
+            return "開放購票";
+        }
+        if (now.isBefore(end)) {
+            return "活動進行中";
+        }
+        return "已結束";
     }
 
 }

@@ -14,10 +14,10 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Entity
-@Table(name = "company_profile")
+@Table(name = "user_profile")
 @Getter
 @Setter
-public class CompanyProfile {
+public class UserProfile {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -29,6 +29,9 @@ public class CompanyProfile {
 
     @Column(name = "company_name")
     private String companyName;
+
+    @Column(name = "username")
+    private String userName;
 
     private String tel;
     private String address;

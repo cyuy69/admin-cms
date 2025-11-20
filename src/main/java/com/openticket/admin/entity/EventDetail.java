@@ -35,6 +35,9 @@ public class EventDetail {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @Column(name = "content", nullable = false, columnDefinition = "TEXT")
+    private String content;
+
     @ManyToOne
     @JoinColumn(name = "event_id", nullable = false)
     private Event event;

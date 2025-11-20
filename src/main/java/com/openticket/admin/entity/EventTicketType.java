@@ -37,9 +37,6 @@ public class EventTicketType {
     @Column(name = "custom_price")
     private BigDecimal customPrice;
 
-    @Column(name = "description")
-    private String description;
-
     // 所屬活動
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "event_id", nullable = false)
