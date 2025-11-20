@@ -25,6 +25,9 @@ public class EventTicketType {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "is_limited", nullable = false)
+    private Boolean isLimited;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 

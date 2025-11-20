@@ -16,12 +16,14 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
 @Table(name = "ticket_type")
 @Getter
 @Setter
+@NoArgsConstructor
 public class TicketType {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -44,6 +46,9 @@ public class TicketType {
 
     @Column(name = "price", nullable = false)
     private BigDecimal price;
+
+    @Column(name = "description")
+    private String description;
 
     // 主辦方（USER）
     @ManyToOne(fetch = FetchType.LAZY)

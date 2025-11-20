@@ -51,7 +51,11 @@ public class User {
     private List<Announcement> announcements;
 
     @OneToMany(mappedBy = "companyUser")
-    @JsonBackReference
+    @JsonIgnore
     private List<Event> events;
+
+    @OneToMany(mappedBy = "user")
+    @JsonIgnore
+    private List<TicketType> ticketTypes;
 
 }

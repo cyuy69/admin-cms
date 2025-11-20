@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.openticket.admin.dto.TicketTypeDto;
 import com.openticket.admin.entity.TicketType;
 import com.openticket.admin.repository.TicketTypeRepository;
 
@@ -35,5 +36,17 @@ public class TicketTypeService {
 
     public void delete(Long id) {
         repo.deleteById(id);
+    }
+
+    public List<TicketTypeDto> getAllDtos() {
+        return getAll().stream()
+                .map(tt -> new TicketTypeDto(
+                        tt.getId(),
+                        tt.getName(),
+                        tt.getPrice(),
+                        tt.getIsLimited(),
+                        tt.getLimitQuantity(),
+                        tt.getDescription()))
+                .toList();
     }
 }

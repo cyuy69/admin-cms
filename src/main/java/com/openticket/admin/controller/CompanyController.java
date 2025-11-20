@@ -37,7 +37,7 @@ public class CompanyController {
 
         String fragmentPath = switch (subPath) {
             case "announcement" -> "fragments/announcement :: content";
-            case "event" -> "fragments/event :: content";
+            case "event", "event/ticket" -> "fragments/event :: content";
 
             case "analytics/traffic" -> "fragments/analytics/traffic :: content";
             case "analytics/consumer" -> "fragments/analytics/consumer :: content";

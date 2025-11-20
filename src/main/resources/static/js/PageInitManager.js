@@ -8,6 +8,9 @@ const PageInitializers = {
     "/admin/dashboard/event": () => {
         if (typeof initEvent === "function") initEvent();
     },
+    "/admin/dashboard/event/ticket": () => {
+        if (typeof initEvent === "function") initEvent();
+    },
     "/admin/dashboard/analytics/traffic": () => {
         if (typeof initTrafficAnalytics === "function") initTrafficAnalytics();
     },
@@ -20,6 +23,7 @@ const PageInitializers = {
 };
 
 function pageInitializer() {
+    console.log("Current path:", location.pathname);
     const path = location.pathname;
     const init = PageInitializers[path];
     if (typeof init === "function") {

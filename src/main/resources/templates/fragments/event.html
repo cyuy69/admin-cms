@@ -1,15 +1,18 @@
 <div th:fragment="content">
   <h2>活動管理</h2>
   <div class="tab-header">
-    <button id="eventTabBtn" class="active" onclick="showTab('event')">
-      活動管理
-    </button>
-    <button id="ticketTabBtn" onclick="showTab('ticket')">票種管理</button>
+    <button id="eventTabBtn" class="active">活動管理</button>
+    <button id="ticketTabBtn">票種管理</button>
   </div>
 
-  <section>
+  <section id="eventTab" class="tab-content">
     <h3>新增活動</h3>
-    <form id="eventForm" th:action="@{/api/events/create}" method="post" enctype="multipart/form-data">
+    <form
+      id="eventForm"
+      th:action="@{/api/events/create}"
+      method="post"
+      enctype="multipart/form-data"
+    >
       <div>
         <label for="cover">活動封面：</label>
         <input type="file" id="cover" name="cover" accept="image/*" />
@@ -20,7 +23,12 @@
       </div>
       <div>
         <label for="eventStart">活動開始日期：</label>
-        <input type="datetime-local" id="eventStart" name="eventStart" required />
+        <input
+          type="datetime-local"
+          id="eventStart"
+          name="eventStart"
+          required
+        />
       </div>
       <div>
         <label for="eventEnd">活動結束日期：</label>
@@ -28,7 +36,12 @@
       </div>
       <div>
         <label for="ticketStart">售票開始日期：</label>
-        <input type="datetime-local" id="ticketStart" name="ticketStart" required />
+        <input
+          type="datetime-local"
+          id="ticketStart"
+          name="ticketStart"
+          required
+        />
       </div>
       <div>
         <label for="address">活動地點：</label>
@@ -42,9 +55,7 @@
       <div class="dropdown-checkbox">
         <label>票種選擇：</label>
         <div class="dropdown">
-          <button type="button" onclick="toggleTicketDropdown()">
-            選擇票種 ▼
-          </button>
+          <button type="button" id="ticketDropdownToggleBtn">選擇票種 ▼</button>
           <div id="ticketDropdown" class="dropdown-content">
             <!-- JS 動態載入票種 -->
           </div>
@@ -101,7 +112,7 @@
     </div>
   </section>
 
-  <script>
+  <!-- <script>
     document
       .getElementById("eventForm")
       .addEventListener("submit", function (e) {
@@ -125,5 +136,14 @@
             alert("建立活動失敗！");
           });
       });
+
+    function toggleTicketDropdown() {
+      const dropdown = document.getElementById("ticketDropdown");
+      dropdown.style.display =
+        dropdown.style.display === "block" ? "none" : "block";
+    }
+  </script> -->
+  <script>
+    
   </script>
 </div>

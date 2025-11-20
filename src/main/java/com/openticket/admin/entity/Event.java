@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.CascadeType;
@@ -31,7 +32,7 @@ public class Event {
 
     @ManyToOne
     @JoinColumn(name = "company_id", nullable = false)
-    @JsonManagedReference
+    @JsonIgnore
     private User companyUser;
 
     private String title, address;
