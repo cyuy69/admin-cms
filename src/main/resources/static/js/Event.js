@@ -100,10 +100,8 @@ function initTicketTypeLoader() {
 
                     <td style="border:1px solid #ccc; padding:6px;">
                         ${ticket.name}
-                        ${ticket.isDefault ? "(自訂)" : "(模板)"}
+                        ${ticket.isDefault ? "(自訂)" : ""}
                         <br>
-                        <small>模板價：$${ticket.price}</small>
-                        ${ticket.isLimited ? `<br><small>模板限量：${ticket.limitQuantity} 張</small>` : ""}
                     </td>
 
                     <td style="border:1px solid #ccc; padding:6px; text-align:center;">
