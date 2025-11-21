@@ -7,15 +7,13 @@
 
   <section id="eventTab" class="tab-content">
     <h3>新增活動</h3>
-    <form
-      id="eventForm"
-      th:action="@{/api/events/create}"
-      method="post"
-      enctype="multipart/form-data"
-    >
+    <form id="eventForm" th:action="@{/api/events/create}" method="post" enctype="multipart/form-data">
       <div>
         <label for="cover">活動封面：</label>
         <input type="file" id="cover" name="cover" accept="image/*" />
+        <span id="coverFilename" style="margin-left: 10px; color: #555;"></span>
+        <br>
+        <img id="coverPreview" style="max-width: 300px; margin-top: 10px; display: none;" />
       </div>
       <div>
         <label for="title">活動名稱：</label>
@@ -23,25 +21,15 @@
       </div>
       <div>
         <label for="eventStart">活動開始日期：</label>
-        <input
-          type="datetime-local"
-          id="eventStart"
-          name="eventStart"
-          required
-        />
+        <input type="datetime-local" id="eventStart" name="eventStart" required />
       </div>
       <div>
         <label for="eventEnd">活動結束日期：</label>
         <input type="datetime-local" id="eventEnd" name="eventEnd" required />
       </div>
       <div>
-        <label for="ticketStart">售票開始日期：</label>
-        <input
-          type="datetime-local"
-          id="ticketStart"
-          name="ticketStart"
-          required
-        />
+        <label for="ticketStart">售票日期：</label>
+        <input type="datetime-local" id="ticketStart" name="ticketStart" required />
       </div>
       <div>
         <label for="address">活動地點：</label>

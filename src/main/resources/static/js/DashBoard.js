@@ -26,7 +26,6 @@ function initActivityCards() {
           ? "未設定"
           : `${endDate.getFullYear()}年${String(endDate.getMonth() + 1).padStart(2, '0')}月${String(endDate.getDate()).padStart(2, '0')}日 ${String(endDate.getHours()).padStart(2, '0')}:${String(endDate.getMinutes()).padStart(2, '0')}`;
 
-
         const avgStay = act.avgStayTime
           ? `${Math.floor(act.avgStayTime / 60)}分${act.avgStayTime % 60}秒`
           : '—';

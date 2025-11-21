@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.openticket.admin.utils.DateTimeUtil;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -38,9 +39,6 @@ public class Event {
 
     private String title, address;
 
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
-
     @Column(name = "event_start")
     private LocalDateTime eventStart;
 
@@ -50,15 +48,16 @@ public class Event {
     @Column(name = "sale_start")
     private LocalDateTime ticketStart;
 
-    private Integer views;
-
-    @Column(name = "tickets_sold")
-    private Integer ticketsSold;
-
-    private Integer shares;
-
     @Column(name = "avg_stay_time")
     private Integer avgStayTime;
+
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
+    }
 
     @ManyToOne
     @JoinColumn(name = "status_id", nullable = false)
@@ -67,11 +66,6 @@ public class Event {
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL)
     @JsonManagedReference("event-image")
     private List<EventTitlePage> images = new ArrayList<>();
-
-    @PrePersist
-    protected void onCreate() {
-        this.createdAt = LocalDateTime.now();
-    }
 
     @Transient
     public String getDynamicStatus() {
@@ -108,6 +102,26 @@ public class Event {
             return "活動進行中";
         }
         return "已結束";
+    }
+
+    @Transient
+    public String getEventStartFormatted() {
+        return DateTimeUtil.format(this.eventStart);
+    }
+
+    @Transient
+    public String getEventEndFormatted() {
+        return DateTimeUtil.format(this.eventEnd);
+    }
+
+    @Transient
+    public String getTicketStartFormatted() {
+        return DateTimeUtil.format(this.ticketStart);
+    }
+
+    @Transient
+    public String getCreatedAtIso() {
+        return createdAt != null ? createdAt.toString() : null;
     }
 
 }

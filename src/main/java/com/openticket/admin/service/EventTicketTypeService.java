@@ -51,4 +51,42 @@ public class EventTicketTypeService {
             repo.save(ett);
         }
     }
+
+    public void rebuildEventTickets(Event event, List<EventTicketRequest> list) {
+
+        // 1. 先刪除舊的
+        repo.deleteByEvent(event);
+
+        // 2. 重新新增
+        for (EventTicketRequest req : list) {
+
+            TicketType template = ticketTypeRepo.findById(req.getTicketTemplateId())
+                    .orElseThrow(() -> new RuntimeException("找不到模板票種 ID：" + req.getTicketTemplateId()));
+
+            EventTicketType ett = new EventTicketType();
+            ett.setEvent(event);
+            ett.setTicketTemplate(template);
+
+            ett.setCustomPrice(
+                    req.getCustomPrice() != null ? req.getCustomPrice() : template.getPrice());
+
+            ett.setCustomLimit(
+                    req.getCustomLimit() != null ? req.getCustomLimit() : template.getLimitQuantity());
+
+            repo.save(ett);
+        }
+    }
+
+    public List<EventTicketRequest> findByEventId(Long eventId) {
+        List<EventTicketType> entities = repo.findByEventId(eventId);
+
+        return entities.stream().map(e -> {
+            EventTicketRequest dto = new EventTicketRequest();
+            dto.setTicketTemplateId(e.getTicketTemplate().getId());
+            dto.setCustomPrice(e.getCustomPrice());
+            dto.setCustomLimit(e.getCustomLimit());
+            return dto;
+        }).toList();
+    }
+
 }

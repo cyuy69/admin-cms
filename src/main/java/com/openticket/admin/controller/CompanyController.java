@@ -32,19 +32,41 @@ public class CompanyController {
     // =============後台分頁=============
     @GetMapping("/dashboard/**")
     public String dashboardSub(HttpServletRequest request, Model model) {
-        String path = request.getRequestURI(); // e.g. /admin/dashboard/analytics/traffic
-        String subPath = path.replace("/admin/dashboard/", ""); // e.g. analytics/traffic
+        String path = request.getRequestURI();
+        String subPath = path.replace("/admin/dashboard/", "");
 
-        String fragmentPath = switch (subPath) {
-            case "announcement" -> "fragments/announcement :: content";
-            case "event", "event/ticket" -> "fragments/event :: content";
+        String fragmentPath;
 
-            case "analytics/traffic" -> "fragments/analytics/traffic :: content";
-            case "analytics/consumer" -> "fragments/analytics/consumer :: content";
-            case "analytics/summary" -> "fragments/analytics/summary :: content";
+        // ⭐ 第一優先：所有 event/edit/** 都丟到 event fragment
+        if (subPath.startsWith("event/edit")) {
+            fragmentPath = "fragments/event :: content";
+        } else {
+            switch (subPath) {
+                case "announcement":
+                    fragmentPath = "fragments/announcement :: content";
+                    break;
 
-            default -> "fragments/dashboard :: content";
-        };
+                case "event":
+                case "event/ticket":
+                    fragmentPath = "fragments/event :: content";
+                    break;
+
+                case "analytics/traffic":
+                    fragmentPath = "fragments/analytics/traffic :: content";
+                    break;
+                case "analytics/consumer":
+                    fragmentPath = "fragments/analytics/consumer :: content";
+                    break;
+                case "analytics/summary":
+                    fragmentPath = "fragments/analytics/summary :: content";
+                    break;
+
+                default:
+                    fragmentPath = "fragments/dashboard :: content";
+                    break;
+            }
+        }
+
         model.addAttribute("content", fragmentPath);
         return "index";
     }
