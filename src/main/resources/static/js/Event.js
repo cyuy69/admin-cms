@@ -82,7 +82,26 @@ function initEventFormSubmit() {
     });
 }
 
-function goEdit(id) {
+function goEdit(id, btn) {
+
+    if (editingEventId === id && btn.dataset.mode === "cancel") {
+        resetEventForm();
+        editingEventId = null;
+
+        btn.dataset.mode = "edit";
+        btn.textContent = "編輯";
+        return;
+    }
+
+    // 清空其他按鈕
+    document.querySelectorAll(".edit-btn").forEach(b => {
+        b.dataset.mode = "edit";
+        b.textContent = "編輯";
+    });
+
+    // 設定這顆按鈕進入取消模式
+    btn.dataset.mode = "cancel";
+    btn.textContent = "取消";
 
     fetch(`/api/events/${id}`)
         .then(res => res.json())
@@ -150,19 +169,9 @@ function goEdit(id) {
 
     function formatDatetimeLocal(raw) {
         if (!raw) return "";
-        const date = new Date(raw);
-        if (isNaN(date.getTime())) return "";
-
-        const yyyy = date.getFullYear();
-        const MM = String(date.getMonth() + 1).padStart(2, "0");
-        const dd = String(date.getDate()).padStart(2, "0");
-        const HH = String(date.getHours()).padStart(2, "0");
-        const mm = String(date.getMinutes()).padStart(2, "0");
-
-        return `${yyyy}-${MM}-${dd}T${HH}:${mm}`;
+        const d = new Date(raw);
+        return d.toISOString().slice(0, 16);
     }
-
-
 }
 
 // 下拉選單初始化
@@ -396,18 +405,30 @@ function loadTicketList() {
 }
 
 function resetEventForm() {
+
     editingEventId = null;
 
     const form = document.getElementById("eventForm");
     form.reset();
 
-    if (tinyMCE.get("description")) {
-        tinyMCE.get("description").setContent("");
-    }
+    // 清空 TinyMCE
+    // if (tinyMCE.get("description")) {
+    //     tinyMCE.get("description").setContent("");
+    // }
 
-    const btn = form.querySelector("button[type='submit']");
-    btn.textContent = "發佈活動";
+    // 清空封面 preview + 檔名
+    const preview = document.getElementById("coverPreview");
+    const filenameSpan = document.getElementById("coverFilename");
+    preview.src = "";
+    preview.style.display = "none";
+    filenameSpan.textContent = "（尚未選擇）";
+
+    // 重設提交按鈕
+    const submitBtn = document.querySelector("#eventForm button[type='submit']");
+    submitBtn.textContent = "發佈活動";
+
 }
+
 
 //載入活動表單用的
 function loadEventList() {
@@ -427,7 +448,6 @@ function loadEventList() {
                 <table border="1" cellspacing="0" cellpadding="6">
                     <thead>
                         <tr>
-                            <th>ID</th>
                             <th>活動名稱</th>
                             <th>開始時間</th>
                             <th>結束時間</th>
@@ -446,12 +466,11 @@ function loadEventList() {
                 const isEditable = !(status === "已結束" || status === "已取消");
 
                 const editButton = isEditable
-                    ? `<button class="edit-btn" onclick="goEdit(${ev.id})">編輯</button>`
-                    : `<button class="edit-btn" disabled style="opacity:0.4; cursor:not-allowed;">不可編輯</button>`;
+                    ? `<button class="edit-btn" onclick="goEdit(${ev.id}, this)">編輯</button>`
+                    : `<button class="edit-btn" disabled style="opacity:0.4; cursor:not-allowed;">編輯</button>`;
 
                 html += `
         <tr>
-            <td>${ev.id}</td>
             <td>${ev.title}</td>
             <td>${ev.eventStart ?? "未設定"}</td>
             <td>${ev.eventEnd ?? "未設定"}</td>
@@ -473,8 +492,3 @@ function loadEventList() {
             container.innerHTML = "<p style='color:red;'>活動列表載入失敗。</p>";
         });
 }
-
-
-
-
-

@@ -62,7 +62,8 @@ public class EventApiController {
 
     @GetMapping
     public List<EventListItemDTO> getAllEvents() {
-        return eventService.getEventListItems(); // ← 不是 getAllEvents()
+        Long companyId = 2L; // 先寫死，未來從 JWT 拿
+        return eventService.getEventListItems(companyId);
     }
 
     @PostMapping("/create")

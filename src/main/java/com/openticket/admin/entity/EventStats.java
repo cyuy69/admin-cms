@@ -1,7 +1,5 @@
 package com.openticket.admin.entity;
 
-import java.time.LocalDateTime;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -21,7 +19,5 @@ public class EventStats {
     private Long id;
     private Integer views;
     private Integer shares;
-
-    private LocalDateTime updatedAt;
 
 }

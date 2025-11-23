@@ -9,13 +9,13 @@ import com.openticket.admin.repository.EventRepository;
 import com.openticket.admin.repository.EventStatsRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -58,8 +58,13 @@ public class EventService {
         detailRepo.save(detail);
     }
 
-    public List<Event> getAllEvents() {
-        return eventRepository.findAll();
+    public List<Event> getAllEvents(Long companyId) {
+        return eventRepository.findByCompanyUser_Id(companyId);
+    }
+
+    public Event getEventById(Long id, Long companyId) {
+        return eventRepository.findByIdAndCompanyUserId(id, companyId)
+                .orElseThrow(() -> new RuntimeException("活動不存在或沒有權限"));
     }
 
     public Event createEvent(Event event) {
@@ -90,10 +95,17 @@ public class EventService {
         return (int) ((id * 13 % 1500) + 1);
     }
 
-    public List<EventListItemDTO> getEventListItems() {
+    public List<EventListItemDTO> getEventListItems(Long companyId) {
         long start = System.currentTimeMillis();
 
-        List<Event> events = eventRepository.findAll();
+        List<Event> events = eventRepository.findByCompanyUser_Id(
+                companyId,
+                Sort.by(Sort.Direction.DESC, "createdAt"));
+
+        if (events.isEmpty()) {
+            return new ArrayList<>();
+        }
+
         List<Long> ids = events.stream().map(Event::getId).toList();
         Map<Long, EventStats> statsMap = eventStatsRepository.findAllById(ids).stream()
                 .collect(Collectors.toMap(EventStats::getId, stats -> stats));
@@ -113,10 +125,8 @@ public class EventService {
             item.setStatus(e.getDynamicStatus()); // "開放購票" / "活動進行中" ...
 
             // 統計資料（目前用假資料）
-            item.setViews(0);
-            EventStats stats = eventStatsRepository.findById(e.getId()).orElse(null);
+            EventStats stats = statsMap.get(e.getId());
             item.setViews(stats != null ? stats.getViews() : 0);
-
             item.setTicketsSold(getTicketsSold(e.getId())); // 你的假方法
 
             items.add(item);
