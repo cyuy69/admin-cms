@@ -1,5 +1,16 @@
 package com.openticket.admin.service;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.openticket.admin.dto.EventListItemDTO;
 import com.openticket.admin.entity.Event;
 import com.openticket.admin.entity.EventDetail;
@@ -7,16 +18,6 @@ import com.openticket.admin.entity.EventStats;
 import com.openticket.admin.repository.EventDetailRepository;
 import com.openticket.admin.repository.EventRepository;
 import com.openticket.admin.repository.EventStatsRepository;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Sort;
-import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 public class EventService {
@@ -34,10 +35,12 @@ public class EventService {
                 .orElseThrow(() -> new RuntimeException("找不到活動 ID=" + id));
     }
 
+    @Transactional
     public void save(Event event) {
         eventRepository.save(event);
     }
 
+    @Transactional
     public void updateDetail(Event event, String content) {
 
         // 找 event_detail
@@ -67,8 +70,14 @@ public class EventService {
                 .orElseThrow(() -> new RuntimeException("活動不存在或沒有權限"));
     }
 
+    @Transactional
     public Event createEvent(Event event) {
         return eventRepository.save(event);
+    }
+
+    @Transactional
+    public Event updateEvent(Event updated) {
+        return eventRepository.save(updated);
     }
 
     public List<Map<String, Object>> getAllEventsWithStats() {

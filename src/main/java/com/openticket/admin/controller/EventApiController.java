@@ -196,46 +196,68 @@ public class EventApiController {
     public ResponseEntity<?> updateEvent(
             @PathVariable Long id,
             @ModelAttribute Event updated,
+            @RequestParam(value = "cover", required = false) MultipartFile coverFile,
             HttpServletRequest request) {
 
         try {
             Event event = eventService.findById(id);
 
-            // 1. 不可編輯：已結束或已取消
+            // 1. 若活動不可編輯
             String status = event.getDynamicStatus();
             if ("已取消".equals(status) || "已結束".equals(status)) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
                         .body("此活動狀態為「" + status + "」，不可編輯");
             }
 
-            // 2. 修改基本資訊
+            // 2. 更新基本欄位
             event.setTitle(updated.getTitle());
             event.setAddress(updated.getAddress());
             event.setEventStart(updated.getEventStart());
             event.setEventEnd(updated.getEventEnd());
             event.setTicketStart(updated.getTicketStart());
 
-            // 3. 修改 event_detail（活動描述）
+            // 3. 更新 event_detail
             String content = request.getParameter("description");
             eventService.updateDetail(event, content);
 
-            // 4. 修改活動票種（方案 B：完全重建）
+            // 4. 更新票種
             String json = request.getParameter("eventTicketsJson");
             if (json != null && !json.isBlank()) {
-
                 ObjectMapper mapper = new ObjectMapper();
                 List<EventTicketRequest> list = mapper.readValue(json, new TypeReference<List<EventTicketRequest>>() {
                 });
-
                 eventTicketTypeService.rebuildEventTickets(event, list);
+            }
+
+            // 5. 若有新封面 → 更新封面
+            if (coverFile != null && !coverFile.isEmpty()) {
+
+                // 刪除舊資料庫紀錄（orphanRemoval = true 會自動刪 DB）
+                event.getImages().clear();
+
+                // 儲存新圖片
+                String filename = UUID.randomUUID() + "_" + coverFile.getOriginalFilename();
+                Path savePath = Paths.get("uploads/covers", filename);
+                Files.createDirectories(savePath.getParent());
+                Files.copy(coverFile.getInputStream(), savePath, StandardCopyOption.REPLACE_EXISTING);
+
+                // 建立新的 EventTitlePage
+                EventTitlePage page = new EventTitlePage();
+                page.setImageUrl("/uploads/covers/" + filename);
+                page.setEvent(event);
+
+                event.getImages().add(page);
             }
 
             eventService.save(event);
 
-            return ResponseEntity.ok("活動已成功更新");
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("title", event.getTitle());
 
-        } catch (Exception e) {
-            e.printStackTrace();
+            return ResponseEntity.ok(response);
+
+        } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("更新活動失敗：" + e.getMessage());
         }

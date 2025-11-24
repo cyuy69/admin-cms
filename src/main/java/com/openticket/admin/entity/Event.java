@@ -63,7 +63,7 @@ public class Event {
     @JoinColumn(name = "status_id", nullable = false)
     private EventStatus statusId;
 
-    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference("event-image")
     private List<EventTitlePage> images = new ArrayList<>();
 

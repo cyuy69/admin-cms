@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.openticket.admin.dto.EventTicketRequest;
 import com.openticket.admin.entity.Event;
@@ -13,6 +14,7 @@ import com.openticket.admin.repository.EventTicketTypeRepository;
 import com.openticket.admin.repository.TicketTypeRepository;
 
 @Service
+@Transactional
 public class EventTicketTypeService {
 
     @Autowired

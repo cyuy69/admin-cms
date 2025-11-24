@@ -16,16 +16,8 @@ function initActivityCards() {
       activities.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
       activities.slice(0, 3).forEach(act => {
         const imgUrl = act.images?.[0]?.imageUrl || 'https://placehold.co/100x100?text=No+Image';
-        const startDate = new Date(act.eventStart);
-        const startTime = isNaN(startDate)
-          ? "未設定"
-          : `${startDate.getFullYear()}年${String(startDate.getMonth() + 1).padStart(2, '0')}月${String(startDate.getDate()).padStart(2, '0')}日 ${String(startDate.getHours()).padStart(2, '0')}:${String(startDate.getMinutes()).padStart(2, '0')}`;
-
-        const endDate = new Date(act.eventEnd);
-        const endTime = isNaN(endDate)
-          ? "未設定"
-          : `${endDate.getFullYear()}年${String(endDate.getMonth() + 1).padStart(2, '0')}月${String(endDate.getDate()).padStart(2, '0')}日 ${String(endDate.getHours()).padStart(2, '0')}:${String(endDate.getMinutes()).padStart(2, '0')}`;
-
+        const startTime = act.eventStart || "未設定";
+        const endTime = act.eventEnd || "未設定";
         const avgStay = act.avgStayTime
           ? `${Math.floor(act.avgStayTime / 60)}分${act.avgStayTime % 60}秒`
           : '—';

@@ -65,7 +65,17 @@ function initEventFormSubmit() {
             method: method,
             body: formData,
         })
-            .then((res) => res.json())
+            .then(async (res) => {
+
+                if (!res.ok) {
+                    // 錯誤文字（通常是 HTML 或字串）
+                    const text = await res.text();
+                    throw new Error(text);
+                }
+
+                // 解析 JSON (新增/編輯成功情況）
+                return res.json();
+            })
             .then((data) => {
                 alert(mode === "edit"
                     ? `活動「${data.title}」已更新！`
@@ -108,6 +118,8 @@ function goEdit(id, btn) {
         .then(ev => {
             editingEventId = ev.id;
 
+            document.getElementById("cover").value = "";
+
             // 填入表單欄位
             document.getElementById("title").value = ev.title || "";
             document.getElementById("address").value = ev.address || "";
@@ -117,24 +129,13 @@ function goEdit(id, btn) {
             document.getElementById("description").value = ev.description || "";
             document.getElementById("cover").addEventListener("change", function () {
                 const file = this.files[0];
-                document.getElementById("coverFilename").textContent = file ? file.name : "（尚未選擇）";
+                updateCoverPreview(file || null);
             });
 
-            const preview = document.getElementById("coverPreview");
-            const filenameSpan = document.getElementById("coverFilename");
-
             if (ev.images && ev.images.length > 0) {
-                const url = ev.images[0].imageUrl;
-                const parts = url.split("/");
-                const filename = parts[parts.length - 1];
-
-                filenameSpan.textContent = filename;
-                preview.src = url;
-                preview.style.display = "block";
+                updateCoverPreview(ev.images[0].imageUrl);
             } else {
-                filenameSpan.textContent = "（尚未上傳）";
-                preview.src = "";
-                preview.style.display = "none";
+                updateCoverPreview(null);
             }
 
             // 清空所有票種勾選與欄位
@@ -411,17 +412,15 @@ function resetEventForm() {
     const form = document.getElementById("eventForm");
     form.reset();
 
+    document.getElementById("cover").value = "";
+
     // 清空 TinyMCE
     // if (tinyMCE.get("description")) {
     //     tinyMCE.get("description").setContent("");
     // }
 
     // 清空封面 preview + 檔名
-    const preview = document.getElementById("coverPreview");
-    const filenameSpan = document.getElementById("coverFilename");
-    preview.src = "";
-    preview.style.display = "none";
-    filenameSpan.textContent = "（尚未選擇）";
+    updateCoverPreview(null);
 
     // 重設提交按鈕
     const submitBtn = document.querySelector("#eventForm button[type='submit']");
@@ -491,4 +490,31 @@ function loadEventList() {
             console.error("載入活動失敗：", err);
             container.innerHTML = "<p style='color:red;'>活動列表載入失敗。</p>";
         });
+}
+
+
+function updateCoverPreview(fileOrUrl) {
+    const preview = document.getElementById("coverPreview");
+    const filenameSpan = document.getElementById("coverFilename");
+
+    if (!fileOrUrl) {
+        filenameSpan.textContent = "（尚未選擇）";
+        preview.src = "";
+        preview.style.display = "none";
+        return;
+    }
+
+    if (typeof fileOrUrl === "string") {
+        // 是 URL
+        const parts = fileOrUrl.split("/");
+        const filename = parts[parts.length - 1];
+        filenameSpan.textContent = filename;
+        preview.src = fileOrUrl;
+    } else {
+        // 是 File
+        filenameSpan.textContent = fileOrUrl.name;
+        preview.src = URL.createObjectURL(fileOrUrl);
+    }
+
+    preview.style.display = "block";
 }
