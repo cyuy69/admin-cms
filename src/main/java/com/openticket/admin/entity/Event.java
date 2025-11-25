@@ -61,7 +61,7 @@ public class Event {
 
     @ManyToOne
     @JoinColumn(name = "status_id", nullable = false)
-    private EventStatus statusId;
+    private EventStatus status;
 
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference("event-image")
@@ -70,7 +70,7 @@ public class Event {
     @Transient
     public String getDynamicStatus() {
         // 1. 已取消優先
-        if (this.statusId != null && "已取消".equals(this.statusId.getStatus())) {
+        if (this.status != null && "已取消".equals(this.status.getStatus())) {
             return "已取消";
         }
 
@@ -84,8 +84,8 @@ public class Event {
         // 3. 如果舊資料沒有設定時間，避免 NPE，直接用資料庫狀態 or 給預設字串
         if (sale == null || start == null || end == null) {
             // 如果你希望顯示資料庫裡的中文狀態可以這樣：
-            if (this.statusId != null && this.statusId.getStatus() != null) {
-                return this.statusId.getStatus(); // ex. "未開放"、"活動進行中"...
+            if (this.status != null && this.status.getStatus() != null) {
+                return this.status.getStatus(); // ex. "未開放"、"活動進行中"...
             }
             // 或者直接顯示「未設定」
             return "未設定";

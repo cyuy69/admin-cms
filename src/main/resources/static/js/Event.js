@@ -96,16 +96,26 @@ function initEventFormSubmit() {
 function goEdit(id, btn) {
 
     if (editingEventId === id && btn.dataset.mode === "cancel") {
+
+        // 1. 重置編輯狀態
         resetEventForm();
-        ini
         editingEventId = null;
 
-        btn.dataset.mode = "edit";
-        btn.textContent = "編輯";
-        document.getElementById("eventCancelBtn").style.display = "inline-block";
+        // 2. 把所有 edit-btn 重設為「編輯」
+        document.querySelectorAll(".edit-btn").forEach(b => {
+            b.dataset.mode = "edit";
+            b.textContent = "編輯";
+            b.disabled = false;
+            b.style.opacity = 1;
+            b.style.cursor = "pointer";
+        });
+
+        // 3. 隱藏表單內的取消按鈕
+        document.getElementById("eventCancelBtn").style.display = "none";
 
         return;
     }
+
 
     // 清空其他按鈕
     document.querySelectorAll(".edit-btn").forEach(b => {
@@ -122,6 +132,7 @@ function goEdit(id, btn) {
         .then(ev => {
             editingEventId = ev.id;
 
+            document.getElementById("eventCancelBtn").style.display = "inline-block";
             document.getElementById("cover").value = "";
 
             // 填入表單欄位
@@ -467,14 +478,28 @@ function loadEventList() {
 
             events.forEach(ev => {
                 const status = ev.status ?? "未設定";
-                const isEditable = !(status === "已結束" || status === "已取消");
+                const canEdit = !(status === "已結束" || status === "已取消");
+                const canCancel = (status === "未開放");
 
-                const editButton = isEditable
-                    ? `<button class="edit-btn" onclick="goEdit(${ev.id}, this)">編輯</button>`
-                    : `<button class="edit-btn" disabled style="opacity:0.4; cursor:not-allowed;">編輯</button>`;
+                let actionButtons = "";
+
+                if (canEdit) {
+                    actionButtons += `<button class="edit-btn" onclick="goEdit(${ev.id}, this)">編輯</button>`;
+                } else {
+                    actionButtons += `<button class="edit-btn" disabled style="opacity:0.4; cursor:not-allowed;">編輯</button>`;
+                }
+
+                if (canCancel) {
+                    actionButtons += `
+                        <button class="cancel-btn"
+                                onclick="cancelEvent(${ev.id})"
+                                style="color:red; margin-left:6px;">
+                            取消活動
+                        </button>`;
+                }
 
                 html += `
-        <tr>
+        <tr style="${(status === '已結束' || status === '已取消') ? 'opacity:0.5;' : ''}">
             <td>${ev.title}</td>
             <td>${ev.eventStart ?? "未設定"}</td>
             <td>${ev.eventEnd ?? "未設定"}</td>
@@ -482,11 +507,10 @@ function loadEventList() {
             <td>${status}</td>
             <td>${ev.views ?? 0}</td>
             <td>${ev.ticketsSold ?? 0}</td>
-            <td>${editButton}</td>
+            <td>${actionButtons}</td>
         </tr>
     `;
             });
-
 
             html += "</tbody></table>";
             container.innerHTML = html;
@@ -539,3 +563,26 @@ function initCancelEditButton() {
         cancelBtn.style.display = "none";
     });
 }
+
+function cancelEvent(id) {
+    if (!confirm("確定要取消這個活動嗎？\n活動取消後將不可再編輯！")) return;
+
+    fetch(`/api/events/${id}/cancel`, {
+        method: "PUT"
+    })
+        .then(res => {
+            if (!res.ok) throw new Error("取消失敗");
+            return res.text();
+        })
+        .then(msg => {
+            alert("活動已取消！");
+            loadEventList();  // 重新載入
+            resetEventForm(); // 若正在編輯，也重置
+        })
+        .catch(err => {
+            console.error("取消活動錯誤:", err);
+            alert("取消活動失敗！");
+        });
+}
+
+

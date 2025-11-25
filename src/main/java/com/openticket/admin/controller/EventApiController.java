@@ -36,6 +36,7 @@ import com.openticket.admin.entity.User;
 import com.openticket.admin.repository.EventDetailRepository;
 import com.openticket.admin.repository.EventStatusRepository;
 import com.openticket.admin.repository.UserRepository;
+import com.openticket.admin.repository.EventRepository;
 import com.openticket.admin.service.EventService;
 import com.openticket.admin.service.EventTicketTypeService;
 
@@ -50,6 +51,9 @@ public class EventApiController {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private EventRepository eventRepository;
 
     @Autowired
     private EventStatusRepository eventStatusRepository;
@@ -103,7 +107,7 @@ public class EventApiController {
             // 3. 查表、設定到 event
             EventStatus status = eventStatusRepository.findById(statusIdToUse)
                     .orElseThrow(() -> new RuntimeException("狀態 ID " + statusIdToUse + " 不存在"));
-            event.setStatusId(status);
+            event.setStatus(status);
 
             // 2. 儲存圖片
             String filename = UUID.randomUUID() + "_" + coverFile.getOriginalFilename();
@@ -261,6 +265,28 @@ public class EventApiController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("更新活動失敗：" + e.getMessage());
         }
+    }
+
+    @PutMapping("/{id}/cancel")
+    public ResponseEntity<String> cancelEvent(@PathVariable Long id) {
+
+        Event event = eventRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("找不到活動"));
+
+        // 只能「未開放」才能取消
+        if (event.getStatus().getId() != 1) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("只有「未開放」的活動可以取消");
+        }
+
+        // 取 id=5 的狀態（已取消）
+        EventStatus canceled = eventStatusRepository.findById(5L)
+                .orElseThrow(() -> new RuntimeException("找不到取消狀態"));
+
+        event.setStatus(canceled);
+        eventRepository.save(event);
+
+        return ResponseEntity.ok("活動已取消");
     }
 
 }
