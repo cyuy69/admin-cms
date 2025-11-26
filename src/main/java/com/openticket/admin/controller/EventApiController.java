@@ -12,6 +12,10 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -65,9 +70,45 @@ public class EventApiController {
     private EventDetailRepository eventDetailRepository;
 
     @GetMapping
-    public List<EventListItemDTO> getAllEvents() {
-        Long companyId = 2L; // 先寫死，未來從 JWT 拿
-        return eventService.getEventListItems(companyId);
+    public Page<EventListItemDTO> getPagedEvents(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "") String keyword,
+            @RequestParam(defaultValue = "createdAt") String sort) {
+        Long companyId = 2L; // 之後從 JWT 拿
+
+        Pageable pageable = PageRequest.of(
+                page - 1, // Spring page 從 0 開始
+                size,
+                Sort.by(Sort.Direction.DESC, sort) // 動態排序
+        );
+
+        Page<Event> eventPage;
+
+        if (keyword == null || keyword.isBlank()) {
+            eventPage = eventRepository.findByCompanyUserId(companyId, pageable);
+        } else {
+            eventPage = eventRepository.searchByCompanyUserId(
+                    companyId,
+                    "%" + keyword + "%",
+                    pageable);
+        }
+
+        // 轉成 DTO（Page<Entity> -> Page<DTO>）
+        return eventPage.map(event -> {
+            EventListItemDTO dto = new EventListItemDTO();
+            dto.setId(event.getId());
+            dto.setTitle(event.getTitle());
+            dto.setEventStart(event.getEventStartFormatted());
+            dto.setEventEnd(event.getEventEndFormatted());
+            dto.setTicketStart(event.getTicketStartFormatted());
+            dto.setCreatedAt(event.getCreatedAtIso());
+            dto.setStatus(event.getDynamicStatus());
+            dto.setViews(0);
+            dto.setTicketsSold(0);
+            dto.setImages(event.getImages());
+            return dto;
+        });
     }
 
     @PostMapping("/create")

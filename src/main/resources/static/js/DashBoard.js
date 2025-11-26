@@ -5,7 +5,9 @@ function initActivityCards() {
   if ($container.length === 0 || $empty.length === 0) return;
 
   $.getJSON("/api/events")
-    .done(activities => {
+    .done(data => {
+
+      const activities = data.content;
       if (!activities || activities.length === 0) {
         $empty.show();
         return;

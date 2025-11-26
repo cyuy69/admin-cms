@@ -1,4 +1,14 @@
 let editingEventId = null;
+
+// 查詢與排序狀態
+let eventQuery = {
+    page: 1,
+    size: 10,
+    keyword: "",
+    sort: "createdAt",
+};
+
+
 function initEvent() {
     initEventFormSubmit();
     initTicketDropdownToggle();
@@ -8,6 +18,8 @@ function initEvent() {
     initTabSwitching();
     loadTicketList();
     loadEventList();
+    initEventSearch();
+    initEventSortButtons();
     initCancelEditButton();
 }
 
@@ -445,15 +457,22 @@ function resetEventForm() {
 
 }
 
-
 //載入活動表單用的
 function loadEventList() {
     const container = document.getElementById("eventListContainer");
     if (!container) return;
 
-    fetch("/api/events")
+    const url = `/api/events`
+        + `?keyword=${encodeURIComponent(eventQuery.keyword)}`
+        + `&page=${eventQuery.page}`
+        + `&size=${eventQuery.size}`
+        + `&sort=${eventQuery.sort}`;
+
+    fetch(url)
         .then(res => res.json())
-        .then(events => {
+        .then(data => {
+
+            const events = data.content;
 
             if (!events || events.length === 0) {
                 container.innerHTML = "<p>目前沒有活動。</p>";
@@ -500,21 +519,22 @@ function loadEventList() {
                 }
 
                 html += `
-        <tr style="${(status === '已結束' || status === '已取消') ? 'opacity:0.5;' : ''}">
-            <td>${ev.title}</td>
-            <td>${ev.eventStart ?? "未設定"}</td>
-            <td>${ev.eventEnd ?? "未設定"}</td>
-            <td>${ev.ticketStart ?? "未設定"}</td>
-            <td>${status}</td>
-            <td>${ev.views ?? 0}</td>
-            <td>${ev.ticketsSold ?? 0}</td>
-            <td>${actionButtons}</td>
-        </tr>
-    `;
+                    <tr style="${(status === '已結束' || status === '已取消') ? 'opacity:0.5;' : ''}">
+                        <td>${ev.title}</td>
+                        <td>${ev.eventStart ?? "未設定"}</td>
+                        <td>${ev.eventEnd ?? "未設定"}</td>
+                        <td>${ev.ticketStart ?? "未設定"}</td>
+                        <td>${status}</td>
+                        <td>${ev.views ?? 0}</td>
+                        <td>${ev.ticketsSold ?? 0}</td>
+                        <td>${actionButtons}</td>
+                    </tr>
+                `;
             });
 
             html += "</tbody></table>";
             container.innerHTML = html;
+            renderPagination(data);
         })
         .catch(err => {
             console.error("載入活動失敗：", err);
@@ -575,7 +595,7 @@ function cancelEvent(id) {
             if (!res.ok) throw new Error("取消失敗");
             return res.text();
         })
-        .then(msg => {
+        .then(() => {
             alert("活動已取消！");
             loadEventList();  // 重新載入
             resetEventForm(); // 若正在編輯，也重置
@@ -586,4 +606,75 @@ function cancelEvent(id) {
         });
 }
 
+function initEventSearch() {
+    const search = document.getElementById("eventSearch");
+    if (!search) return;
 
+    let timer = null;
+
+    search.addEventListener("keyup", () => {
+        clearTimeout(timer);
+
+        timer = setTimeout(() => {
+            eventQuery.keyword = search.value.trim();
+            eventQuery.page = 1;
+            loadEventList();
+        }, 300);
+    });
+}
+
+function initEventSortButtons() {
+    const sortCreateBtn = document.getElementById("sortCreateBtn");
+    const sortEventBtn = document.getElementById("sortEventBtn");
+
+    sortCreateBtn.addEventListener("click", () => {
+        eventQuery.sort = "createdAt";
+        eventQuery.page = 1;
+        loadEventList();
+        highlightSortButton();
+    });
+
+    sortEventBtn.addEventListener("click", () => {
+        eventQuery.sort = "eventStart";
+        eventQuery.page = 1;
+        loadEventList();
+        highlightSortButton();
+    });
+}
+
+function highlightSortButton() {
+    document.getElementById("sortCreateBtn").classList.remove("active");
+    document.getElementById("sortEventBtn").classList.remove("active");
+
+    if (eventQuery.sort === "createdAt") {
+        document.getElementById("sortCreateBtn").classList.add("active");
+    } else {
+        document.getElementById("sortEventBtn").classList.add("active");
+    }
+}
+
+function renderPagination(data) {
+    const container = document.getElementById("pagination");
+    if (!container) return;
+
+    let html = "";
+
+    if (!data.first) {
+        html += `<button onclick="gotoPage(${eventQuery.page - 1})">上一頁</button>`;
+    }
+
+    for (let i = 1; i <= data.totalPages; i++) {
+        html += `<button onclick="gotoPage(${i})" ${i === eventQuery.page ? "style='font-weight:bold;'" : ""}>${i}</button>`;
+    }
+
+    if (!data.last) {
+        html += `<button onclick="gotoPage(${eventQuery.page + 1})">下一頁</button>`;
+    }
+
+    container.innerHTML = html;
+}
+
+function gotoPage(p) {
+    eventQuery.page = p;
+    loadEventList();
+}

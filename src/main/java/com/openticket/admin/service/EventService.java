@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -104,46 +106,34 @@ public class EventService {
         return (int) ((id * 13 % 1500) + 1);
     }
 
-    public List<EventListItemDTO> getEventListItems(Long companyId) {
-        long start = System.currentTimeMillis();
+    public Page<EventListItemDTO> getEventListPage(Long companyId, String keyword, Pageable pageable) {
 
-        List<Event> events = eventRepository.findByCompanyUser_Id(
-                companyId,
-                Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<Event> events;
 
-        if (events.isEmpty()) {
-            return new ArrayList<>();
+        // 搜尋 or 全部
+        if (keyword == null || keyword.isBlank()) {
+            events = eventRepository.findByCompanyUserId(companyId, pageable);
+        } else {
+            events = eventRepository.searchByCompanyUserId(companyId, "%" + keyword + "%", pageable);
         }
 
-        List<Long> ids = events.stream().map(Event::getId).toList();
-        Map<Long, EventStats> statsMap = eventStatsRepository.findAllById(ids).stream()
-                .collect(Collectors.toMap(EventStats::getId, stats -> stats));
-        List<EventListItemDTO> items = new ArrayList<>();
-
-        for (Event e : events) {
+        // 轉 DTO
+        return events.map(ev -> {
             EventListItemDTO item = new EventListItemDTO();
-            item.setId(e.getId());
-            item.setTitle(e.getTitle());
-            item.setImages(e.getImages());
+            item.setId(ev.getId());
+            item.setTitle(ev.getTitle());
+            item.setEventStart(ev.getEventStartFormatted());
+            item.setEventEnd(ev.getEventEndFormatted());
+            item.setTicketStart(ev.getTicketStartFormatted());
+            item.setCreatedAt(ev.getCreatedAtIso());
+            item.setStatus(ev.getDynamicStatus());
 
-            item.setEventStart(e.getEventStartFormatted());
-            item.setEventEnd(e.getEventEndFormatted());
-            item.setTicketStart(e.getTicketStartFormatted());
-            item.setCreatedAt(e.getCreatedAt().toString());
+            // 假資料（你原本的 ticketsSold)
+            item.setViews(0);
+            item.setTicketsSold(getTicketsSold(ev.getId()));
 
-            item.setStatus(e.getDynamicStatus()); // "開放購票" / "活動進行中" ...
-
-            // 統計資料（目前用假資料）
-            EventStats stats = statsMap.get(e.getId());
-            item.setViews(stats != null ? stats.getViews() : 0);
-            item.setTicketsSold(getTicketsSold(e.getId())); // 你的假方法
-
-            items.add(item);
-        }
-        long end = System.currentTimeMillis();
-        System.out.println("載入活動列表耗時：" + (end - start) + "ms");
-
-        return items;
+            return item;
+        });
     }
 
     public void deleteEvent(Long id) {
