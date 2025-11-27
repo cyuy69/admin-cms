@@ -69,11 +69,21 @@ public class EventTicketTypeService {
             ett.setEvent(event);
             ett.setTicketTemplate(template);
 
+            // 活動票價
             ett.setCustomPrice(
-                    req.getCustomPrice() != null ? req.getCustomPrice() : template.getPrice());
+                    req.getCustomPrice() != null
+                            ? req.getCustomPrice()
+                            : template.getPrice());
 
-            ett.setCustomLimit(
-                    req.getCustomLimit() != null ? req.getCustomLimit() : template.getLimitQuantity());
+            // 活動限量：活動覆蓋 > 模板 > null
+            Integer finalLimit = req.getCustomLimit() != null
+                    ? req.getCustomLimit()
+                    : template.getLimitQuantity();
+
+            ett.setCustomLimit(finalLimit);
+
+            // **這行最重要**
+            ett.setIsLimited(finalLimit != null);
 
             repo.save(ett);
         }

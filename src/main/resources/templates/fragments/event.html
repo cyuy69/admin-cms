@@ -7,21 +7,13 @@
 
   <section id="eventTab" class="tab-content">
     <h3>新增活動</h3>
-    <form
-      id="eventForm"
-      th:action="@{/api/events/create}"
-      method="post"
-      enctype="multipart/form-data"
-    >
+    <form id="eventForm" th:action="@{/api/events/create}" method="post" enctype="multipart/form-data">
       <div>
         <label for="cover">活動封面：</label>
         <input type="file" id="cover" name="cover" accept="image/*" />
         <span id="coverFilename" style="margin-left: 10px; color: #555"></span>
         <br />
-        <img
-          id="coverPreview"
-          style="max-width: 300px; margin-top: 10px; display: none"
-        />
+        <img id="coverPreview" style="max-width: 300px; margin-top: 10px; display: none" />
       </div>
       <div>
         <label for="title">活動名稱：</label>
@@ -29,12 +21,7 @@
       </div>
       <div>
         <label for="eventStart">活動開始日期：</label>
-        <input
-          type="datetime-local"
-          id="eventStart"
-          name="eventStart"
-          required
-        />
+        <input type="datetime-local" id="eventStart" name="eventStart" required />
       </div>
       <div>
         <label for="eventEnd">活動結束日期：</label>
@@ -42,12 +29,7 @@
       </div>
       <div>
         <label for="ticketStart">售票日期：</label>
-        <input
-          type="datetime-local"
-          id="ticketStart"
-          name="ticketStart"
-          required
-        />
+        <input type="datetime-local" id="ticketStart" name="ticketStart" required />
       </div>
       <div>
         <label for="address">活動地點：</label>
@@ -81,12 +63,7 @@
       <button id="sortCreateBtn" class="active">建立日期排序</button>
       <button id="sortEventBtn">活動日期排序</button>
 
-      <input
-        id="eventSearch"
-        type="text"
-        placeholder="搜尋活動"
-        style="margin-left: auto"
-      />
+      <input id="eventSearch" type="text" placeholder="搜尋活動" style="margin-left: auto" />
       <div id="pagination" style="margin-top: 15px"></div>
     </div>
     <div id="eventListContainer">
@@ -124,9 +101,38 @@
       <button type="submit">新增票種</button>
     </form>
 
-    <h4>已建立票種</h4>
-    <div id="ticketListContainer">
-      <!-- JS 載入票種列表 -->
-    </div>
+    <!-- 系統模板區塊 -->
+    <h4>票種模板</h4>
+    <table border="1" cellspacing="0" cellpadding="6" style="width:100%; margin-bottom:20px;">
+      <thead>
+        <tr>
+          <th>票種名稱</th>
+          <th>票價</th>
+          <th>限量？</th>
+          <th>限量張數</th>
+          <th>描述</th>
+          <th>套用模板</th>
+        </tr>
+      </thead>
+      <tbody id="templateTableBody"></tbody>
+    </table>
+
+    <!-- 主辦方自訂票種 -->
+    <h4>我的自訂票種（可編輯/刪除）</h4>
+    <table border="1" cellspacing="0" cellpadding="6" style="width:100%; margin-bottom:20px;">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>名稱</th>
+          <th>票價</th>
+          <th>限量？</th>
+          <th>限量張數</th>
+          <th>描述</th>
+          <th>編輯</th>
+          <th>刪除</th>
+        </tr>
+      </thead>
+      <tbody id="customTableBody"></tbody>
+    </table>
   </section>
 </div>

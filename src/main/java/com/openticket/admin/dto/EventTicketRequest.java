@@ -10,4 +10,7 @@ public class EventTicketRequest {
     private BigDecimal customPrice;
     private Integer customLimit;
     private String description;
+    private Boolean isEarlyBird;
+    private Integer earlyBirdDays;
+    private BigDecimal discountRate;
 }

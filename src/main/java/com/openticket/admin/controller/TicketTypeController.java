@@ -24,6 +24,10 @@ public class TicketTypeController {
     @Autowired
     private TicketTypeService service;
 
+    private Long getCurrentUserId() {
+        return 2L;
+    }
+
     // 查全部票種（屬於當前主辦方的）
     @GetMapping
     public List<TicketTypeDto> getAll() {
@@ -33,7 +37,7 @@ public class TicketTypeController {
     @GetMapping("/for-event")
     public List<TicketTypeDto> getForEvent() {
 
-        Long userId = 2L; // 之後做登入會改掉
+        Long userId = getCurrentUserId();
 
         return service.getAllForOrganizer(userId).stream()
                 .map(tt -> new TicketTypeDto(
@@ -46,11 +50,17 @@ public class TicketTypeController {
                 .toList();
     }
 
-    // ❸（新增）主辦方自己的票種管理頁 → 只顯示自己的自訂票
+    // 取得票種模板
+    @GetMapping("/templates")
+    public List<TicketTypeDto> getTemplates() {
+        return service.getTemplateDtos();
+    }
+
+    // （新增）主辦方自己的票種管理頁 → 只顯示自己的自訂票
     @GetMapping("/my")
     public List<TicketTypeDto> getMyTickets() {
 
-        Long userId = 2L; // 之後做登入會改掉
+        Long userId = getCurrentUserId();
 
         return service.getCustom(userId).stream()
                 .map(tt -> new TicketTypeDto(
@@ -68,9 +78,9 @@ public class TicketTypeController {
     public TicketType create(@RequestBody TicketType tt) {
         // 這邊是硬資料，未來要引入登入驗證，取得用戶ID
         User user = new User();
-        user.setId(2L);
-        tt.setUser(user);
+        user.setId(getCurrentUserId());
 
+        tt.setUser(user);
         tt.setIsDefault(true);
         return service.create(tt);
     }
@@ -87,5 +97,12 @@ public class TicketTypeController {
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
         service.delete(id);
+    }
+
+    @PostMapping("/apply/{templateId}")
+    public TicketType applyTemplate(@PathVariable Long templateId) {
+
+        Long userId = getCurrentUserId();
+        return service.applyTemplate(templateId, userId);
     }
 }
