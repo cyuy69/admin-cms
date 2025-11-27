@@ -4,10 +4,9 @@ function initActivityCards() {
 
   if ($container.length === 0 || $empty.length === 0) return;
 
-  $.getJSON("/api/events")
-    .done(data => {
+  $.getJSON("/api/events/latest")
+    .done(activities => {
 
-      const activities = data.content;
       if (!activities || activities.length === 0) {
         $empty.show();
         return;

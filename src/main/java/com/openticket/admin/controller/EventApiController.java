@@ -111,6 +111,33 @@ public class EventApiController {
         });
     }
 
+    @GetMapping("/latest")
+    public List<EventListItemDTO> getLatestEvents() {
+        Long companyId = 2L; // 先寫死
+
+        List<Event> events = eventRepository.findByCompanyUser_Id(
+                companyId,
+                Sort.by(Sort.Direction.DESC, "createdAt"));
+
+        return events.stream()
+                .limit(3) // Dashboard 只需要前三筆
+                .map(e -> {
+                    EventListItemDTO dto = new EventListItemDTO();
+                    dto.setId(e.getId());
+                    dto.setTitle(e.getTitle());
+                    dto.setEventStart(e.getEventStartFormatted());
+                    dto.setEventEnd(e.getEventEndFormatted());
+                    dto.setTicketStart(e.getTicketStartFormatted());
+                    dto.setCreatedAt(e.getCreatedAtIso());
+                    dto.setStatus(e.getDynamicStatus());
+                    dto.setViews(0);
+                    dto.setTicketsSold(0);
+                    dto.setImages(e.getImages());
+                    return dto;
+                })
+                .toList();
+    }
+
     @PostMapping("/create")
     public ResponseEntity<?> createEvent(
             @ModelAttribute Event event,

@@ -12,7 +12,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
@@ -25,23 +24,28 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String email;
 
-    @Column(name = "password")
+    @Column(nullable = false)
+    private String account;
+
+    @Column(name = "password", nullable = false)
     @JsonIgnore
     private String passwd;
 
+    private String username;
+
+    private String tel;
+
+    private String address;
+
     @Column(name = "role")
-    private Role role;
+    private Integer role;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
     @Column(name = "is_active")
     private Boolean isActive;
-
-    @OneToOne(mappedBy = "user")
-    private UserProfile companyProfile;
 
     @OneToMany(mappedBy = "user")
     @JsonBackReference("announcement-user")
@@ -54,5 +58,14 @@ public class User {
     @OneToMany(mappedBy = "user")
     @JsonIgnore
     private List<TicketType> ticketTypes;
+
+    @JsonIgnore
+    public Role getRoleEnum() {
+        return this.role != null ? Role.fromCode(this.role) : null;
+    }
+
+    public void setRoleEnum(Role roleEnum) {
+        this.role = roleEnum != null ? roleEnum.getCode() : null;
+    }
 
 }
