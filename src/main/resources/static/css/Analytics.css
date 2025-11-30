@@ -1,0 +1,206 @@
+/* analytics-wrapper 總容器 */
+.analytics-wrapper {
+    padding: 20px;
+    max-width: 1300px;
+    /* 增加一點寬度以容納所有內容 */
+    margin: 0 auto;
+    font-family: sans-serif;
+}
+
+hr {
+    border: 0;
+    border-top: 1px solid #ccc;
+    margin: 15px 0;
+}
+
+/* ====== 主要內容區塊：使用 Grid 實現兩欄佈局 ====== */
+.main-dashboard-grid {
+    display: grid;
+    /* 定義列：左側 (總覽/篩選) 佔約 1/4，右側 (KPI/圖表) 佔約 3/4 */
+    grid-template-columns: 1fr 3fr;
+    gap: 25px;
+    /* 左右欄之間的間距 */
+}
+
+
+/* ================== 左側欄樣式 (left-sidebar) ================== */
+
+.left-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* 總覽卡片群組 */
+.summary-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    /* 卡片之間沒有間距 */
+    border: 1px solid #ccc;
+    /* 整個總覽區塊的外框 */
+}
+
+.summary-card {
+    padding: 10px 15px;
+    border-bottom: 1px solid #eee;
+    background-color: #fff;
+    color: #333;
+}
+
+.summary-card:last-child {
+    border-bottom: none;
+}
+
+.summary-card h4 {
+    margin: 5px 0 0 0;
+    font-size: 1.2em;
+}
+
+.current-selection {
+    background-color: #f0f0f0;
+    font-weight: bold;
+    color: #000;
+}
+
+/* 篩選控制項 (filter-controls) */
+.filter-controls {
+    display: flex;
+    height: 300px;
+}
+
+.filter-header {
+    background-color: #f0f0f0;
+    width: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding-top: 5px;
+    border: 1px solid #ccc;
+    border-right: none;
+}
+
+.filter-icon {
+    font-size: 1.2em;
+    font-weight: bold;
+    line-height: 1;
+}
+
+.filter-list {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    background-color: #fff;
+    border-left: none;
+}
+
+/* ================== 右側欄樣式 (right-content) ================== */
+
+.right-content {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* KPI 區塊：Flexbox 橫向排列 */
+.kpi-container {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+}
+
+.kpi-card {
+    flex: 1;
+    /* 等寬分配 */
+    border: 1px solid #ccc;
+    padding: 15px;
+    text-align: center;
+    border-radius: 5px;
+    background-color: #fff;
+}
+
+.kpi-card div {
+    font-size: 0.9em;
+    color: #666;
+}
+
+.kpi-card h3 {
+    margin: 5px 0 0 0;
+    font-size: 1.8em;
+    color: #333;
+}
+
+/* 圖表行：Flexbox 橫向排列 */
+.chart-row {
+    display: flex;
+    gap: 20px;
+}
+
+.chart-box {
+    flex: 1;
+    /* 等寬分配 */
+    border: 1px solid #ccc;
+    padding: 15px;
+    border-radius: 5px;
+    background-color: #fff;
+}
+
+.chart-box h4,
+.pie-box h4 {
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 1.1em;
+}
+
+/* 圓餅圖/甜甜圈圖框 */
+.pie-box {
+    width: 100%;
+    padding: 15px;
+    border-radius: 5px;
+    background-color: #fff;
+    /* 圓餅圖不需要外框，因為圖片中的圖表和圖例是分開的 */
+    /* border: 1px solid #ccc; */
+}
+
+/* 售出票種比例圖例樣式 (模仿圖片底部) */
+.legend-box {
+    text-align: center;
+    margin-top: -5px;
+    /* 稍微向上移動靠近圖表 */
+}
+
+.legend-item {
+    margin: 0 10px;
+    font-size: 0.9em;
+}
+
+/* 確保 canvas 響應式 */
+canvas {
+    max-width: 100%;
+    height: auto !important;
+    /* 圖表庫可能會設定高度，這裡確保它響應式 */
+}
+
+.pie-box {
+    width: 100%;
+    padding: 15px;
+    border-radius: 5px;
+    background-color: #fff;
+    /* 限制最大寬度和高度，使圖表不再過大 */
+    max-width: 800px;
+    max-height: 500px;
+    margin: 0 auto;
+    /* 讓圓餅圖在右側欄中央 */
+}
+
+#pieChart {
+    max-height: 400px;
+    max-width: 400px;
+    margin: 0 auto;
+    display: block;
+    /* 讓 margin auto 生效 */
+}

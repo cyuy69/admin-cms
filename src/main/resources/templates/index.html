@@ -1,20 +1,25 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="zh-TW">
-  <head>
-    <meta charset="UTF-8" />
-    <title>後台管理系統</title>
 
-    <link rel="stylesheet" th:href="@{/css/LayoutStyle.css}" />
-    <link rel="stylesheet" th:href="@{/css/DashboardStyle.css}" />
-  </head>
+<head>
+  <meta charset="UTF-8" />
+  <title>後台管理系統</title>
 
-  <body>
-    <div th:replace="~{layout :: layout(~{__${content}__})}"></div>
-    <script th:src="@{/js/jquery-3.7.1.js}"></script>
-    <script th:src="@{/js/LayoutScript.js}"></script>
-    <script th:src="@{/js/DashBoard.js}"></script>
-    <script th:src="@{/js/Announcement.js}"></script>
-    <script th:src="@{/js/Event.js}"></script>
-    <script th:src="@{/js/PageInitManager.js}"></script>
-  </body>
+  <link rel="stylesheet" th:href="@{/css/LayoutStyle.css}" />
+  <link rel="stylesheet" th:href="@{/css/DashboardStyle.css}" />
+  <link rel="stylesheet" th:href="@{/css/Analytics.css}" />
+</head>
+
+<body>
+  <div th:replace="~{layout :: layout(~{__${content}__})}"></div>
+  <script th:src="@{/js/jquery-3.7.1.js}"></script>
+  <script th:src="@{/js/LayoutScript.js}"></script>
+  <script th:src="@{/js/DashBoard.js}"></script>
+  <script th:src="@{/js/Announcement.js}"></script>
+  <script th:src="@{/js/Event.js}"></script>
+  <script th:src="@{/js/PageInitManager.js}"></script>
+  <script th:src="@{/js/chart.js}"></script>
+  <script th:src="@{/js/analytics.js}"></script>
+</body>
+
 </html>

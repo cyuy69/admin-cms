@@ -120,7 +120,7 @@ public class EventApiController {
                 Sort.by(Sort.Direction.DESC, "createdAt"));
 
         return events.stream()
-                .limit(3) // Dashboard 只需要前三筆
+                .limit(3) // 取前三筆
                 .map(e -> {
                     EventListItemDTO dto = new EventListItemDTO();
                     dto.setId(e.getId());

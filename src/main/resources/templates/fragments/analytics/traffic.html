@@ -1,4 +1,99 @@
-<div th:fragment="content">
+<div th:fragment="content" class="analytics-wrapper">
     <h2>流量與銷售分析</h2>
-    <p>測試用的內容</p>
+
+    <hr>
+
+    <div class="main-dashboard-grid">
+
+        <div class="left-sidebar">
+
+            <div class="summary-cards">
+                <div class="summary-card current-selection">
+                    當前選擇
+                    <br>
+                    <strong>所有活動 ▼</strong>
+                </div>
+                <div class="summary-card">
+                    總瀏覽量
+                    <h4 id="totalViews">1000</h4>
+                </div>
+                <div class="summary-card">
+                    總售出票數
+                    <h4 id="totalSales">100</h4>
+                </div>
+                <div class="summary-card">
+                    總營收
+                    <h4 id="totalRevenue">20000</h4>
+                </div>
+                <div class="summary-card">
+                    總活動數
+                    <h4 id="totalActivities">4</h4>
+                </div>
+            </div>
+
+            <div class="filter-controls">
+                <div class="filter-header">
+                    <span class="filter-icon">▼</span>
+                </div>
+                <div class="filter-list">
+                    <div class="mode-selector-in-list">
+                        <label><input type="radio" name="mode" value="merge" checked>合併模式</label>
+                        <label style="margin-left:15px;"><input type="radio" name="mode" value="compare">比對模式</label>
+                    </div>
+                    <label><input type="checkbox" class="event-check" value="1" checked> 活動 A</label>
+                    <label><input type="checkbox" class="event-check" value="2" checked> 活動 B</label>
+                    <label><input type="checkbox"></label>
+                    <label><input type="checkbox"></label>
+                    <label><input type="checkbox"></label>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="right-content">
+            <div class="kpi-container">
+                <div class="kpi-card">
+                    <div>今日瀏覽量</div>
+                    <h3 id="kpiViews">0</h3>
+                </div>
+                <div class="kpi-card">
+                    <div>今日售票量</div>
+                    <h3 id="kpiSales">0</h3>
+                </div>
+
+                <div class="kpi-card">
+                    <div>本週收入</div>
+                    <h3 id="kpiRevenue">0</h3>
+                </div>
+
+                <div class="kpi-card">
+                    <div>平均轉換率</div>
+                    <h3 id="kpiConversion">0%</h3>
+                </div>
+            </div>
+
+            <div class="chart-row">
+                <div class="chart-box">
+                    <h4>流量折線圖</h4>
+                    <canvas id="trafficChart"></canvas>
+                </div>
+
+                <div class="chart-box">
+                    <h4>銷售折線圖</h4>
+                    <canvas id="salesChart"></canvas>
+                </div>
+            </div>
+
+            <div class="pie-box">
+                <h4>售出票種比例</h4>
+                <canvas id="pieChart"></canvas>
+            </div>
+            <div class="legend-box">
+                <span class="legend-item"><span style="color: blue;">■</span> 成人</span>
+                <span class="legend-item"><span style="color: orange;">■</span> 兒童</span>
+                <span class="legend-item"><span style="color: green;">■</span> 優惠</span>
+                <span class="legend-item"><span style="color: lightblue;">■</span> 自訂</span>
+            </div>
+        </div>
+    </div>
 </div>
