@@ -35,6 +35,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     List<Event> findByCompanyUser_Id(Long companyId, Sort sort);
 
     @SuppressWarnings("null")
-    @EntityGraph(attributePaths = { "images", "statusId" })
+    @EntityGraph(attributePaths = { "images", "status" })
     List<Event> findAll();
+
 }

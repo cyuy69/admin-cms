@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -355,6 +356,18 @@ public class EventApiController {
         eventRepository.save(event);
 
         return ResponseEntity.ok("活動已取消");
+    }
+
+    @GetMapping("/all")
+    public List<Map<String, Object>> listEvents() {
+        return eventRepository.findAll().stream()
+                .map(e -> {
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("id", e.getId());
+                    map.put("title", e.getTitle());
+                    return map;
+                })
+                .collect(Collectors.toList());
     }
 
 }

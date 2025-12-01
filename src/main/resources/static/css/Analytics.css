@@ -95,7 +95,15 @@ hr {
     border: 1px solid #ccc;
     background-color: #fff;
     border-left: none;
+    overflow-y: auto;
 }
+
+#eventFilterList label {
+    display: block;
+    margin-bottom: 6px;
+    white-space: normal;
+}
+
 
 /* ================== 右側欄樣式 (right-content) ================== */
 

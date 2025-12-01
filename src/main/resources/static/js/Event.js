@@ -9,7 +9,6 @@ let eventQuery = {
     sort: "createdAt",
 };
 
-
 function initEvent() {
     initEventFormSubmit();
     initTicketDropdownToggle();
@@ -90,7 +89,6 @@ function initEventFormSubmit() {
                     : 85,
             });
         });
-
 
         formData.append("eventTicketsJson", JSON.stringify(selectedTickets));
 
@@ -230,7 +228,6 @@ function goEdit(id, btn) {
                 }
             });
 
-
             // 改送出按鈕文字
             const submitBtn = document.querySelector("#eventForm button[type='submit']");
             submitBtn.textContent = "確認編輯";
@@ -243,10 +240,13 @@ function goEdit(id, btn) {
             alert("無法載入活動資料");
         });
 
-
     function formatDatetimeLocal(raw) {
         if (!raw) return "";
         const d = new Date(raw);
+        d.setMinutes(0);
+        d.setSeconds(0);
+        d.setMilliseconds(0);
+        // yyyy-MM-ddTHH:00
         return d.toISOString().slice(0, 16);
     }
 }
@@ -358,7 +358,6 @@ function earlyBirdForm(row) {
             ebFinalCell.innerHTML = `
             <input type="text" class="early-bird-final-price" readonly style="width:80px; background:#eee;">
         `;
-
             // 取得剛插入的元素
             const ebDays = ebDaysCell.querySelector(".early-bird-days");
             const ebDiscount = ebDiscountCell.querySelector(".early-bird-discount");
@@ -369,7 +368,6 @@ function earlyBirdForm(row) {
             const calculate = () => {
                 const basePrice = parseFloat(priceInput.value || priceInput.placeholder);
                 const rate = parseFloat(ebDiscount.value);
-
                 if (!rate || rate < 1 || rate > 99) {
                     ebFinal.value = "";
                     return;
@@ -378,10 +376,8 @@ function earlyBirdForm(row) {
                 const discountRate = rate / 100;
                 ebFinal.value = Math.round(basePrice * discountRate);
             };
-
             ebDiscount.addEventListener("input", calculate);
             priceInput.addEventListener("input", calculate);
-
         } else {
             // 不啟用 → 清空欄位
             ebDaysCell.innerHTML = "";
@@ -395,7 +391,6 @@ function earlyBirdForm(row) {
 function initLimitQuantityToggle() {
     const isLimitedSelect = document.getElementById("isLimited");
     const limitQuantityContainer = document.getElementById("limitQuantityContainer");
-
     if (isLimitedSelect && limitQuantityContainer) {
         isLimitedSelect.addEventListener("change", function () {
             limitQuantityContainer.style.display =
@@ -407,10 +402,8 @@ function initLimitQuantityToggle() {
 function initTicketFormSubmit() {
     const form = document.getElementById("ticketForm");
     if (!form) return;
-
     form.addEventListener("submit", function (e) {
         e.preventDefault();
-
         const ticketData = {
             name: form.ticketName.value,
             price: parseFloat(form.ticketPrice.value).toFixed(2), // 僅限 price 做浮點處理
@@ -425,13 +418,11 @@ function initTicketFormSubmit() {
         let url = "/api/tickets";
         let method = "POST";
         let isEdit = false;
-
         if (editingTicketId !== null) {
             url = `/api/tickets/${editingTicketId}`;
             method = "PUT";
             isEdit = true;
         }
-
 
         fetch(url, {
             method: method,
@@ -636,7 +627,6 @@ function loadEventList() {
             container.innerHTML = "<p style='color:red;'>活動列表載入失敗。</p>";
         });
 }
-
 
 function updateCoverPreview(fileOrUrl) {
     const preview = document.getElementById("coverPreview");
@@ -957,7 +947,6 @@ function editTicket(id, btn) {
             alert("無法載入票種資料");
         });
 }
-
 
 // 取消票種
 function cancelEditTicket(btn) {

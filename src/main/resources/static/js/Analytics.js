@@ -19,8 +19,6 @@ async function loadAnalytics() {
     // === 取得模式：merge / compare ===
     const mode = document.querySelector('input[name="mode"]:checked')?.value || "merge";
 
-
-
     // 無活動 → 顯示空資料（全部為 0）
 
     if (eventIds.length === 0) {
@@ -66,22 +64,16 @@ async function loadAnalytics() {
                 datasets: [{ data: [1], backgroundColor: ["#cccccc"] }]
             }
         });
-
         return;
     }
 
-
-
     // 呼叫後端 API
-
     const query = eventIds.map(id => `eventIds=${id}`).join("&");
     let resp = await fetch(`/api/analytics?${query}&mode=${mode}`);
     let data = await resp.json();
+    console.log("後端回傳資料:", data);
 
-
-
-    // ⭐ 比較模式（compare）
-
+    // 比較模式（compare）
     if (mode === "compare") {
 
         // ===== 流量圖（多條線） =====
@@ -201,6 +193,32 @@ async function loadAnalytics() {
     });
 }
 
+// 載入活動列表
+async function loadFilterEventList() {
+
+    const listContainer = document.getElementById("eventFilterList");
+    if (!listContainer) return;
+
+    let resp = await fetch("/api/events/all");
+    let events = await resp.json();
+
+    // 清空舊的活動 (但不要清空 mode-selector)
+    listContainer.innerHTML = "";
+
+    // 加入活動 checkbox
+    events.forEach(ev => {
+        listContainer.insertAdjacentHTML("beforeend", `
+            <label>
+                <input type="checkbox" class="event-check" value="${ev.id}" checked>
+                ${ev.title}
+            </label>
+        `);
+    });
+
+    // 重新綁定監聽
+    initEventSelectionListener();
+}
+
 // Checkbox + mode 監聽
 function initEventSelectionListener() {
     // 監聽活動 checkbox
@@ -224,13 +242,13 @@ function initEventSelectionListener() {
     });
 }
 
-function initTrafficAnalytics() {
-    // 確保 canvas 存在
-    if (!document.getElementById("trafficChart")) {
-        return;
-    }
+async function initTrafficAnalytics() {
+    if (!document.getElementById("trafficChart")) return;
 
-    // 從 localStorage 還原活動選擇
+    // ① 一定要先載入活動列表 (產生 checkbox)
+    await loadFilterEventList();
+
+    // ② 從 localStorage 還原活動選擇
     const savedEvents = JSON.parse(localStorage.getItem("analytics_selectedEvents") || "[]");
     if (savedEvents.length > 0) {
         document.querySelectorAll(".event-check").forEach(cb => {
@@ -238,14 +256,17 @@ function initTrafficAnalytics() {
         });
     }
 
-    // 還原模式 (merge / compare)
+    // ③ 還原模式 (merge / compare)
     const savedMode = localStorage.getItem("analytics_mode");
     if (savedMode) {
         const radio = document.querySelector(`input[name='mode'][value='${savedMode}']`);
         if (radio) radio.checked = true;
     }
 
+    // ④ 一定要在 checkbox 生成後綁定監聽
     initEventSelectionListener();
+
+    // ⑤ 載入圖表
     loadAnalytics();
 }
 
