@@ -39,6 +39,7 @@
     width: 180px;
 }
 
+/* 表格 */
 .order-table {
     width: 100%;
     border-collapse: collapse;
@@ -68,11 +69,17 @@
 
 .event-modal-content {
     width: 55%;
+    height: 520px;
+    /* 固定高度（你可以調整） */
     background: white;
     padding: 20px;
     border-radius: 8px;
+
+    display: flex;
+    flex-direction: column;
 }
 
+/* 搜尋框 */
 .event-search-input {
     width: 100%;
     padding: 10px;
@@ -80,33 +87,76 @@
     border: 1px solid #ccc;
 }
 
+/* 活動列表 */
 .event-list {
+    flex: 1;
     max-height: 350px;
     overflow-y: auto;
     border: 1px solid #eee;
+    padding-right: 6px;
 }
 
 .event-item {
-    padding: 12px;
+    display: flex;
+    align-items: center;
+    padding: 6px 4px;
     border-bottom: 1px solid #eee;
-    cursor: pointer;
+}
+
+.event-modal-footer {
+    display: flex;
+    justify-content: flex-start;
+    gap: 10px;
+    margin-top: auto;
 }
 
 .event-item:hover {
     background: #f3f8ff;
 }
 
-/* 選中活動的封面區塊 */
-.event-preview {
-    display: flex;
-    align-items: center;
+/* 讓活動文字太多會變成 "..." */
+.event-item span {
+    display: inline-block;
+    margin-left: 6px;
+    max-width: 260px;
+    /* 控制顯示寬度 */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* checkbox 不要壓到字 */
+.event-item input[type="checkbox"] {
+    margin-right: 8px;
+}
+
+/* 顯示更多按鈕 */
+.event-show-more {
+    text-align: center;
+    padding: 8px;
+    color: #0d6efd;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.event-show-more:hover {
+    text-decoration: underline;
+}
+
+/* 選中活動(展示用) */
+.event-selected-list {
     margin-top: 10px;
 }
 
-.event-preview img {
-    width: 120px;
-    height: 80px;
-    object-fit: cover;
+.event-selected-item {
+    padding: 6px 10px;
+    background: #f1f5ff;
     border-radius: 4px;
-    margin-right: 12px;
+    margin-right: 6px;
+    cursor: pointer;
+    display: inline-block;
+}
+
+.event-selected-item:hover {
+    background: #dbe6ff;
 }

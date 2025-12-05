@@ -38,4 +38,13 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     @EntityGraph(attributePaths = { "images", "status" })
     List<Event> findAll();
 
+    @Query(value = """
+            SELECT e.id, e.title
+            FROM event e
+            WHERE e.company_id = :userId
+                AND (:keyword IS NULL OR e.title LIKE CONCAT('%', :keyword, '%'))
+            ORDER BY e.created_at DESC
+            """, nativeQuery = true)
+    List<Object[]> findMyEventTitles(Long userId, String keyword);
+
 }

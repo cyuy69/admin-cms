@@ -126,7 +126,7 @@ public class EventService {
             item.setCreatedAt(ev.getCreatedAtIso());
             item.setStatus(ev.getDynamicStatus());
 
-            // 假資料（你原本的 ticketsSold)
+            // 假資料
             item.setViews(0);
             item.setTicketsSold(getTicketsSold(ev.getId()));
 

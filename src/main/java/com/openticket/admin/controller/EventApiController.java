@@ -34,6 +34,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.openticket.admin.dto.EventListItemDTO;
 import com.openticket.admin.dto.EventTicketRequest;
+import com.openticket.admin.dto.EventTitleDTO;
 import com.openticket.admin.entity.Event;
 import com.openticket.admin.entity.EventDetail;
 import com.openticket.admin.entity.EventStatus;
@@ -43,6 +44,7 @@ import com.openticket.admin.repository.EventDetailRepository;
 import com.openticket.admin.repository.EventStatusRepository;
 import com.openticket.admin.repository.UserRepository;
 import com.openticket.admin.repository.EventRepository;
+import com.openticket.admin.service.EventQueryService;
 import com.openticket.admin.service.EventService;
 import com.openticket.admin.service.EventTicketTypeService;
 
@@ -69,6 +71,9 @@ public class EventApiController {
 
     @Autowired
     private EventDetailRepository eventDetailRepository;
+
+    @Autowired
+    private EventQueryService eventQueryService;
 
     @GetMapping
     public Page<EventListItemDTO> getPagedEvents(
@@ -244,12 +249,12 @@ public class EventApiController {
                     .body("找不到活動 ID：" + id);
         }
 
-        // 1. 活動描述
+        // 活動描述
         EventDetail detail = eventDetailRepository.findByEventId(event.getId());
         String description = detail != null ? detail.getContent() : "";
         List<EventTicketRequest> selectedTickets = eventTicketTypeService.findByEventId(event.getId());
 
-        // 3. 組合回傳 JSON（你可以用 Map 或自訂 Response DTO）
+        // 組合回傳 JSON
         Map<String, Object> result = new HashMap<>();
         result.put("id", event.getId());
         result.put("title", event.getTitle());
@@ -368,6 +373,14 @@ public class EventApiController {
                     return map;
                 })
                 .collect(Collectors.toList());
+    }
+
+    @GetMapping("/my")
+    public List<EventTitleDTO> getMyEventTitles(
+            @RequestParam(required = false) String keyword) {
+
+        Long companyId = 2L; // TODO JWT
+        return eventQueryService.getEventTitles(companyId, keyword);
     }
 
 }

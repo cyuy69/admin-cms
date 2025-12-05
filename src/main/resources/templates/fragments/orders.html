@@ -5,7 +5,7 @@
     <!-- 選擇活動區塊 -->
     <div class="selected-event-box" id="selectedEventBox">
       <button id="openEventModalBtn" class="select-event-btn">選擇活動</button>
-      <div class="placeholder">(顯示活動封面與標題)</div>
+      <div class="placeholder">(顯示活動標題)</div>
     </div>
 
     <!-- 訂單查詢框 -->
@@ -37,7 +37,7 @@
     </table>
   </div>
 
-  <!-- 🌙 選擇活動 Modal -->
+  <!-- 選擇活動 Modal -->
   <div id="eventModal" class="event-modal">
     <div class="event-modal-content">
       <h3>選擇活動</h3>
@@ -50,11 +50,17 @@
         placeholder="搜尋活動名稱..."
       />
 
-      <div id="eventList" class="event-list">
-        <!-- 動態活動列表 -->
+      <!-- 活動列表（動態載入 checkbox） -->
+      <div id="eventList" class="event-list"></div>
+      <div id="eventShowMore" class="event-show-more" style="display: none">
+        顯示更多
       </div>
 
-      <button id="eventModalClose" class="close-modal-btn">關閉</button>
+      <!-- 按鈕列 -->
+      <div class="event-modal-footer">
+        <button id="eventModalApply" class="apply-modal-btn">套用選擇</button>
+        <button id="eventModalClose" class="close-modal-btn">關閉</button>
+      </div>
     </div>
   </div>
 </div>
