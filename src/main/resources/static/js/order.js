@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", () => {
+function initOrders() {
 
     if (window.orderPageLoaded) return;
     window.orderPageLoaded = true;
@@ -6,6 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let selectedEvents = [];
     let allOrderEvents = [];
     let visibleCount = 10;
+    let hasRendered = false;
 
     // 保存活動選項
     function saveSelectedEvents() {
@@ -274,10 +275,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const observer = new MutationObserver(() => {
         const box = document.getElementById("selectedEventBox");
-        if (box) renderSelectedEvents();
+
+        // 若找到 selectedEventBox 且還沒初始化過，就執行一次
+        if (box && !hasRendered) {
+            hasRendered = true;
+            loadSelectedEvents();
+            renderSelectedEvents();
+            observer.disconnect();
+        }
     });
 
     observer.observe(document.body, { childList: true, subtree: true });
+
 
 
     /* 切換活動 */
@@ -300,4 +309,4 @@ document.addEventListener("DOMContentLoaded", () => {
 
     });
 
-});
+};
