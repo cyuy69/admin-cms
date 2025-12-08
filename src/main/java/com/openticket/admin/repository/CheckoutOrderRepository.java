@@ -97,16 +97,30 @@ public interface CheckoutOrderRepository extends JpaRepository<CheckoutOrder, Lo
 
         // 查總售票+總營收
         @Query("""
-                                SELECT
-                                SUM(co.quantity),
-                                SUM(co.quantity * co.unitPrice)
-                                FROM CheckoutOrder co
-                                JOIN co.order o
-                                JOIN Payment p ON p.order = o
-                                JOIN co.eventTicketType ett
-                                WHERE ett.event.id IN :eventIds
-                                AND p.status IN ('SUCCESS', 'PAID')
+                        SELECT
+                        SUM(co.quantity),
+                        SUM(co.quantity * co.unitPrice)
+                        FROM CheckoutOrder co
+                        JOIN co.order o
+                        JOIN Payment p ON p.order = o
+                        JOIN co.eventTicketType ett
+                        WHERE ett.event.id IN :eventIds
+                        AND p.status IN ('SUCCESS', 'PAID')
                         """)
         Object sumTotalTicketsAndRevenue(@Param("eventIds") List<Long> eventIds);
+
+        // 查某個活動的總售票 + 總營收
+        @Query("""
+                            SELECT
+                                COALESCE(SUM(co.quantity), 0),
+                                COALESCE(SUM(co.quantity * co.unitPrice), 0)
+                            FROM CheckoutOrder co
+                            JOIN co.eventTicketType ett
+                            JOIN co.order o
+                            JOIN o.payments p
+                            WHERE ett.event.id = :eventId
+                              AND p.status IN ('SUCCESS','PAID')
+                        """)
+        List<Object[]> sumTicketsAndRevenueByEvent(@Param("eventId") Long eventId);
 
 }

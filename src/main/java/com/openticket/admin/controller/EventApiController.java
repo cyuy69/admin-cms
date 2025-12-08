@@ -44,6 +44,8 @@ import com.openticket.admin.repository.EventDetailRepository;
 import com.openticket.admin.repository.EventStatusRepository;
 import com.openticket.admin.repository.UserRepository;
 import com.openticket.admin.repository.EventRepository;
+import com.openticket.admin.repository.CheckoutOrderRepository;
+import com.openticket.admin.service.DashboardService;
 import com.openticket.admin.service.EventQueryService;
 import com.openticket.admin.service.EventService;
 import com.openticket.admin.service.EventTicketTypeService;
@@ -74,6 +76,12 @@ public class EventApiController {
 
     @Autowired
     private EventQueryService eventQueryService;
+
+    @Autowired
+    private DashboardService dashboardService;
+
+    @Autowired
+    private CheckoutOrderRepository checkoutOrderRepository;
 
     @GetMapping
     public Page<EventListItemDTO> getPagedEvents(
@@ -120,28 +128,26 @@ public class EventApiController {
     @GetMapping("/latest")
     public List<EventListItemDTO> getLatestEvents() {
         Long companyId = 2L; // 先寫死
+        return dashboardService.getLatestEvents(companyId);
+    }
 
-        List<Event> events = eventRepository.findByCompanyUser_Id(
-                companyId,
-                Sort.by(Sort.Direction.DESC, "createdAt"));
+    @GetMapping("/debug/{id}/sales")
+    public Object debugEventSales(@PathVariable Long id) {
 
-        return events.stream()
-                .limit(3) // 取前三筆
-                .map(e -> {
-                    EventListItemDTO dto = new EventListItemDTO();
-                    dto.setId(e.getId());
-                    dto.setTitle(e.getTitle());
-                    dto.setEventStart(e.getEventStartFormatted());
-                    dto.setEventEnd(e.getEventEndFormatted());
-                    dto.setTicketStart(e.getTicketStartFormatted());
-                    dto.setCreatedAt(e.getCreatedAtIso());
-                    dto.setStatus(e.getDynamicStatus());
-                    dto.setViews(0);
-                    dto.setTicketsSold(0);
-                    dto.setImages(e.getImages());
-                    return dto;
-                })
-                .toList();
+        List<Object[]> list = checkoutOrderRepository.sumTicketsAndRevenueByEvent(id);
+
+        if (list == null || list.isEmpty()) {
+            return Map.of("tickets", 0, "revenue", 0);
+        }
+
+        Object[] row = list.get(0);
+
+        long tickets = ((Number) row[0]).longValue();
+        long revenue = ((Number) row[1]).longValue();
+
+        return Map.of(
+                "tickets", tickets,
+                "revenue", revenue);
     }
 
     @PostMapping("/create")

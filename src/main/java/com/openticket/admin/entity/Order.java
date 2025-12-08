@@ -72,4 +72,8 @@ public class Order {
     // 與 CheckoutOrder 的一對多
     @OneToMany(mappedBy = "order")
     private List<CheckoutOrder> checkoutOrders;
+
+    @OneToMany(mappedBy = "order")
+    private List<Payment> payments;
+
 }

@@ -44,8 +44,8 @@ function initActivityCards() {
                   <span class="value">${act.views ?? 0}</span>
                 </div>
                 <div class="stat-item">
-                  <span class="label">⏱ 平均停留</span>
-                  <span class="value">${avgStay}</span>
+                  <span class="label">💰 總營收</span>
+                  <span class="value">${act.revenue ?? 0}</span>
                 </div>
                 <div class="stat-item">
                   <span class="label">🎟️ 售出票數</span>
