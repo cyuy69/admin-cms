@@ -1,10 +1,6 @@
 package com.openticket.admin.controller.organizer;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -44,11 +40,11 @@ import com.openticket.admin.repository.EventDetailRepository;
 import com.openticket.admin.repository.EventStatusRepository;
 import com.openticket.admin.repository.UserRepository;
 import com.openticket.admin.repository.EventRepository;
-import com.openticket.admin.repository.CheckoutOrderRepository;
 import com.openticket.admin.service.DashboardService;
 import com.openticket.admin.service.EventQueryService;
 import com.openticket.admin.service.EventService;
 import com.openticket.admin.service.EventTicketTypeService;
+import com.openticket.admin.service.SmbStorageService;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -79,6 +75,9 @@ public class EventApiController {
 
     @Autowired
     private DashboardService dashboardService;
+
+    @Autowired
+    private SmbStorageService smbStorageService;
 
     @GetMapping
     public Page<EventListItemDTO> getPagedEvents(
@@ -167,14 +166,12 @@ public class EventApiController {
                     .orElseThrow(() -> new RuntimeException("狀態 ID " + statusIdToUse + " 不存在"));
             event.setStatus(status);
 
-            // 2. 儲存圖片
+            // 2. 儲存圖片到 SMB
             String filename = UUID.randomUUID() + "_" + coverFile.getOriginalFilename();
-            Path savePath = Paths.get("uploads/covers", filename);
-            Files.createDirectories(savePath.getParent());
-            Files.copy(coverFile.getInputStream(), savePath, StandardCopyOption.REPLACE_EXISTING);
+            smbStorageService.uploadCover(filename, coverFile.getInputStream());
 
             EventTitlePage cover = new EventTitlePage();
-            cover.setImageUrl("/uploads/covers/" + filename);
+            cover.setImageUrl("/api/files/covers/" + filename);
             cover.setEvent(event);
             event.getImages().add(cover);
 
@@ -291,24 +288,37 @@ public class EventApiController {
                 eventTicketTypeService.rebuildEventTickets(event, list);
             }
 
-            // 5. 若有新封面 → 更新封面
+            // 5. 若有新封面 → 更新封面（覆蓋到 SMB）
             if (coverFile != null && !coverFile.isEmpty()) {
 
-                // 刪除舊資料庫紀錄（orphanRemoval = true 會自動刪 DB）
-                event.getImages().clear();
+                // 先記錄舊檔名，等會刪除 SMB 檔案
+                List<String> oldFilenames = event.getImages().stream()
+                        .map(EventTitlePage::getImageUrl)
+                        .filter(url -> url != null && !url.isBlank())
+                        .map(url -> url.substring(url.lastIndexOf('/') + 1))
+                        .toList();
 
-                // 儲存新圖片
+                // 儲存新圖片到 SMB
                 String filename = UUID.randomUUID() + "_" + coverFile.getOriginalFilename();
-                Path savePath = Paths.get("uploads/covers", filename);
-                Files.createDirectories(savePath.getParent());
-                Files.copy(coverFile.getInputStream(), savePath, StandardCopyOption.REPLACE_EXISTING);
+                smbStorageService.uploadCover(filename, coverFile.getInputStream());
 
                 // 建立新的 EventTitlePage
                 EventTitlePage page = new EventTitlePage();
-                page.setImageUrl("/uploads/covers/" + filename);
+                page.setImageUrl("/api/files/covers/" + filename);
                 page.setEvent(event);
 
+                // 刪除舊資料庫紀錄（orphanRemoval = true 會自動刪 DB）
+                event.getImages().clear();
                 event.getImages().add(page);
+
+                // 刪除 SMB 上的舊檔（忽略刪除錯誤）
+                for (String old : oldFilenames) {
+                    try {
+                        smbStorageService.deleteCover(old);
+                    } catch (IOException ignore) {
+                        // 刪除失敗就略過，避免阻塞更新流程
+                    }
+                }
             }
 
             eventService.save(event);
