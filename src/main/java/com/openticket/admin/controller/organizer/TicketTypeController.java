@@ -4,8 +4,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -21,6 +23,17 @@ import com.openticket.admin.service.TicketTypeService;
 @RestController
 @RequestMapping("/api/tickets")
 public class TicketTypeController {
+
+    @InitBinder
+    public void initBinder(WebDataBinder binder) {
+        binder.setDisallowedFields(
+                "id",
+                "user",
+                "userId",
+                "createdAt",
+                "isDefault"
+        );
+    }
 
     @Autowired
     private TicketTypeService service;

@@ -1,4 +1,4 @@
-package com.openticket.admin.service;
+package com.openticket.admin.service.event;
 
 import com.openticket.admin.entity.EventStats;
 import com.openticket.admin.repository.EventStatsRepository;

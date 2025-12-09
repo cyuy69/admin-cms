@@ -1,7 +1,6 @@
 package com.openticket.admin.controller.organizer;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,7 +14,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -35,16 +36,15 @@ import com.openticket.admin.entity.Event;
 import com.openticket.admin.entity.EventDetail;
 import com.openticket.admin.entity.EventStatus;
 import com.openticket.admin.entity.EventTitlePage;
-import com.openticket.admin.entity.User;
 import com.openticket.admin.repository.EventDetailRepository;
 import com.openticket.admin.repository.EventStatusRepository;
-import com.openticket.admin.repository.UserRepository;
 import com.openticket.admin.repository.EventRepository;
 import com.openticket.admin.service.DashboardService;
-import com.openticket.admin.service.EventQueryService;
-import com.openticket.admin.service.EventService;
-import com.openticket.admin.service.EventTicketTypeService;
 import com.openticket.admin.service.SmbStorageService;
+import com.openticket.admin.service.event.EventCreationService;
+import com.openticket.admin.service.event.EventQueryService;
+import com.openticket.admin.service.event.EventService;
+import com.openticket.admin.service.event.EventTicketTypeService;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -52,11 +52,31 @@ import jakarta.servlet.http.HttpServletRequest;
 @RequestMapping("/api/events")
 public class EventApiController {
 
-    @Autowired
-    private EventService eventService;
+    @InitBinder
+    public void initBinder(WebDataBinder binder) {
+        binder.setDisallowedFields(
+                "id",
+                "companyUser",
+                "status",
+                "createdAt",
+
+                "images",
+                "images.*.id",
+                "images.*.imageUrl",
+                "images.*.createdAt",
+
+                // 活動票種
+                "eventTicketTypes",
+                "eventTicketTypes.*.id",
+                "eventTicketTypes.*.eventId",
+                "eventTicketTypes.*.createdAt",
+                "eventTicketTypes.*.ticketTemplateId",
+                "eventTicketTypes.*.earlyBirdConfig",
+                "eventTicketTypes.*.earlyBirdConfigId");
+    }
 
     @Autowired
-    private UserRepository userRepository;
+    private EventService eventService;
 
     @Autowired
     private EventRepository eventRepository;
@@ -72,6 +92,9 @@ public class EventApiController {
 
     @Autowired
     private EventQueryService eventQueryService;
+
+    @Autowired
+    private EventCreationService eventCreationService;
 
     @Autowired
     private DashboardService dashboardService;
@@ -113,7 +136,7 @@ public class EventApiController {
             dto.setEventEnd(event.getEventEndFormatted());
             dto.setTicketStart(event.getTicketStartFormatted());
             dto.setCreatedAt(event.getCreatedAtIso());
-            dto.setStatus(event.getDynamicStatus());
+            dto.setStatus(eventService.calculateDynamicStatus(event));
             dto.setViews(0);
             dto.setTicketsSold(0);
             dto.setImages(event.getImages());
@@ -134,88 +157,14 @@ public class EventApiController {
             HttpServletRequest request) {
 
         try {
-            // 1. 設定預設公司與狀態
-            User defaultUser = userRepository.findById(2L)
-                    .orElseThrow(() -> new RuntimeException("使用者 ID 2 不存在"));
-            event.setCompanyUser(defaultUser);
+            String ticketJson = request.getParameter("eventTicketsJson");
+            String description = request.getParameter("description");
 
-            // 1. 先抓時間欄位
-            LocalDateTime now = LocalDateTime.now();
-            LocalDateTime sale = event.getTicketStart();
-            LocalDateTime start = event.getEventStart();
-            LocalDateTime end = event.getEventEnd();
+            Event saved = eventCreationService.createEventWithAll(
+                    event, coverFile, ticketJson, description);
 
-            // 2. 判斷要用哪個狀態 ID
-            Long statusIdToUse;
-
-            // 若時間資料不完整，給個安全預設值（你也可以選 1：未開放）
-            if (sale == null || start == null || end == null) {
-                statusIdToUse = 1L; // 或你自己決定一個安全值
-            } else if (now.isBefore(sale)) {
-                statusIdToUse = 1L; // 未開放
-            } else if (now.isBefore(start)) {
-                statusIdToUse = 4L; // 開放購票
-            } else if (now.isBefore(end)) {
-                statusIdToUse = 2L; // 活動進行中
-            } else {
-                statusIdToUse = 3L; // 已結束
-            }
-
-            // 3. 查表、設定到 event
-            EventStatus status = eventStatusRepository.findById(statusIdToUse)
-                    .orElseThrow(() -> new RuntimeException("狀態 ID " + statusIdToUse + " 不存在"));
-            event.setStatus(status);
-
-            // 2. 儲存圖片到 SMB
-            String filename = UUID.randomUUID() + "_" + coverFile.getOriginalFilename();
-            smbStorageService.uploadCover(filename, coverFile.getInputStream());
-
-            EventTitlePage cover = new EventTitlePage();
-            cover.setImageUrl("/api/files/covers/" + filename);
-            cover.setEvent(event);
-            event.getImages().add(cover);
-
-            // 3. 儲存活動
-            Event saved = eventService.createEvent(event);
-
-            EventListItemDTO dto = new EventListItemDTO();
-            dto.setId(saved.getId());
-            dto.setTitle(saved.getTitle());
-            dto.setEventStart(saved.getEventStartFormatted());
-            dto.setEventEnd(saved.getEventEndFormatted());
-            dto.setTicketStart(saved.getTicketStartFormatted());
-            dto.setStatus(saved.getDynamicStatus());
-            dto.setViews(0);
-            dto.setTicketsSold(0);
-
-            // 4. 解析活動票種 JSON
-            String json = request.getParameter("eventTicketsJson");
-
-            if (json != null && !json.isEmpty()) {
-                ObjectMapper mapper = new ObjectMapper();
-
-                List<EventTicketRequest> tickets = mapper.readValue(json,
-                        new TypeReference<List<EventTicketRequest>>() {
-                        });
-
-                eventTicketTypeService.createForEvent(saved, tickets);
-            }
-
-            String content = request.getParameter("description");
-
-            // 如果有填內容，就建立一筆 event_detail
-            if (content != null && !content.isBlank()) {
-                EventDetail detail = new EventDetail();
-                detail.setEvent(saved);
-                detail.setContent(content);
-                eventDetailRepository.save(detail);
-            }
-            // 5. 回傳成功
             return ResponseEntity.ok(saved);
 
-        } catch (IOException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("圖片儲存失敗：" + e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("活動建立失敗：" + e.getMessage());
@@ -235,6 +184,12 @@ public class EventApiController {
         String description = detail != null ? detail.getContent() : "";
         List<EventTicketRequest> selectedTickets = eventTicketTypeService.findByEventId(event.getId());
 
+        // 新增：計算哪些票種已經有訂單，不可刪除
+        List<Long> cannotDeleteIds = event.getEventTicketTypes().stream()
+                .filter(e -> e.getCheckoutOrders() != null && !e.getCheckoutOrders().isEmpty())
+                .map(e -> e.getTicketTemplate().getId())
+                .toList();
+
         // 組合回傳 JSON
         Map<String, Object> result = new HashMap<>();
         result.put("id", event.getId());
@@ -248,6 +203,8 @@ public class EventApiController {
         result.put("images", event.getImages());
         result.put("createdAt", event.getCreatedAtIso());
 
+        result.put("cannotDeleteTicketIds", cannotDeleteIds);
+        result.put("eventStatus", eventService.calculateDynamicStatus(event));
         return ResponseEntity.ok(result);
     }
 
@@ -262,7 +219,8 @@ public class EventApiController {
             Event event = eventService.findById(id);
 
             // 1. 若活動不可編輯
-            String status = event.getDynamicStatus();
+            String status = eventService.calculateDynamicStatus(event);
+
             if ("已取消".equals(status) || "已結束".equals(status)) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
                         .body("此活動狀態為「" + status + "」，不可編輯");

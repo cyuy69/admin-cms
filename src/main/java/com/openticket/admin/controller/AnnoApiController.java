@@ -3,8 +3,10 @@ package com.openticket.admin.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -19,6 +21,15 @@ import com.openticket.admin.service.AnnouncementService;
 @RestController
 @RequestMapping("/api/announcements")
 public class AnnoApiController {
+
+    @InitBinder
+    public void initBinder(WebDataBinder binder) {
+        binder.setDisallowedFields(
+                "id",
+                "createdAt",
+                "user",
+                "userId");
+    }
 
     @Autowired
     private AnnouncementService service;

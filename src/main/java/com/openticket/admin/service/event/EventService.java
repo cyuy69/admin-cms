@@ -1,5 +1,6 @@
-package com.openticket.admin.service;
+package com.openticket.admin.service.event;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -124,7 +125,7 @@ public class EventService {
             item.setEventEnd(ev.getEventEndFormatted());
             item.setTicketStart(ev.getTicketStartFormatted());
             item.setCreatedAt(ev.getCreatedAtIso());
-            item.setStatus(ev.getDynamicStatus());
+            item.setStatus(calculateDynamicStatus(ev));
 
             // 假資料
             item.setViews(0);
@@ -136,6 +137,29 @@ public class EventService {
 
     public void deleteEvent(Long id) {
         eventRepository.deleteById(id);
+    }
+
+    public String calculateDynamicStatus(Event event) {
+        if (event.getStatus() != null && "已取消".equals(event.getStatus().getStatus())) {
+            return "已取消";
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime sale = event.getTicketStart();
+        LocalDateTime start = event.getEventStart();
+        LocalDateTime end = event.getEventEnd();
+
+        if (sale == null || start == null || end == null) {
+            return event.getStatus() != null ? event.getStatus().getStatus() : "未設定";
+        }
+
+        if (now.isBefore(sale))
+            return "未開放";
+        if (now.isBefore(start))
+            return "開放購票";
+        if (now.isBefore(end))
+            return "活動進行中";
+        return "已結束";
     }
 
 }

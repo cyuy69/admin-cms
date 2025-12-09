@@ -14,6 +14,7 @@ import com.openticket.admin.entity.EventStats;
 import com.openticket.admin.repository.CheckoutOrderRepository;
 import com.openticket.admin.repository.EventRepository;
 import com.openticket.admin.repository.EventStatsRepository;
+import com.openticket.admin.service.event.EventService;
 
 @Service
 public class DashboardService {
@@ -26,6 +27,9 @@ public class DashboardService {
 
         @Autowired
         private CheckoutOrderRepository checkoutOrderRepository;
+
+        @Autowired
+        private EventService eventService;
 
         /* 取得該最新 3 筆活動 */
         public List<EventListItemDTO> getLatestEvents(Long companyId) {
@@ -52,7 +56,7 @@ public class DashboardService {
                 dto.setEventEnd(e.getEventEndFormatted());
                 dto.setTicketStart(e.getTicketStartFormatted());
                 dto.setCreatedAt(e.getCreatedAtIso());
-                dto.setStatus(e.getDynamicStatus());
+                dto.setStatus(eventService.calculateDynamicStatus(e));
                 dto.setImages(e.getImages());
 
                 // ===== 從 event_stats 拿流量 & 分享 =====
