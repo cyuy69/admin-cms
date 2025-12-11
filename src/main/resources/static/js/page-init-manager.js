@@ -24,12 +24,12 @@ const PageInitializers = {
     },
 
     // Admin 使用者管理
-    "/admin/dashboard/admin/users": () => {
+    "/admin/dashboard/users": () => {
         if (typeof initAdminUsers === "function") initAdminUsers();
     },
 
     // Admin 訂單管理
-    "/admin/dashboard/admin/orders": () => {
+    "/admin/dashboard/orders": () => {
         if (typeof initAdminOrders === "function") initAdminOrders();
     },
 

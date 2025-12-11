@@ -1,18 +1,21 @@
-document.addEventListener("DOMContentLoaded", () => {
-    console.log("Admin Order Page Loaded");
+function initAdminOrders() {
+    console.log("初始化 Admin Orders 模組...");
 
-    loadOrders(0); // 預設 page = 0
+    // 綁定查詢按鈕
+    const btn = document.getElementById("searchBtn");
+    if (btn) {
+        btn.onclick = () => loadOrders(0);
+    }
 
-    document.getElementById("searchBtn").addEventListener("click", () => {
-        loadOrders(0); // 重新查詢從第 0 頁開始
-    });
-});
+    // 首次載入第 0 頁
+    loadOrders(0);
+}
 
 async function loadOrders(page) {
 
-    const keyword = document.getElementById("keyword").value.trim();
-    const startDate = document.getElementById("startDate").value;
-    const endDate = document.getElementById("endDate").value;
+    const keyword = document.getElementById("keyword")?.value.trim() || "";
+    const startDate = document.getElementById("startDate")?.value || "";
+    const endDate = document.getElementById("endDate")?.value || "";
     const size = 10; // 每頁 10 筆
 
     let params = [`page=${page}`, `size=${size}`];
@@ -21,25 +24,21 @@ async function loadOrders(page) {
     if (startDate) params.push(`startDate=${startDate}`);
     if (endDate) params.push(`endDate=${endDate}`);
 
-    const query = `?${params.join("&")}`;
-    const url = `/api/admin/orders${query}`;
-
+    const url = `/api/admin/orders?${params.join("&")}`;
     console.log("呼叫 API:", url);
 
     try {
         const resp = await fetch(url);
-
         if (!resp.ok) {
             console.error("API 錯誤:", resp.status);
             return;
         }
 
         const data = await resp.json(); // Page 格式
-
         console.log("後端回傳 Page:", data);
 
-        renderOrders(data.content);          // 表格資料
-        renderPagination(data);              // 分頁按鈕
+        renderOrders(data.content);
+        renderPagination(data);
 
     } catch (err) {
         console.error("無法取得訂單資料:", err);
@@ -81,8 +80,7 @@ function renderPagination(pageData) {
     const current = pageData.number;
     const total = pageData.totalPages;
 
-    // 🔥 即使 totalPages=1 一樣顯示
-    // 上一頁（如果不是第 0 頁）
+    // 上一頁
     if (current > 0) {
         const prev = document.createElement("button");
         prev.textContent = "上一頁";
@@ -90,7 +88,7 @@ function renderPagination(pageData) {
         container.appendChild(prev);
     }
 
-    // 頁碼按鈕（哪怕只有 1 頁也顯示）
+    // 頁碼按鈕
     for (let i = 0; i < total; i++) {
         const btn = document.createElement("button");
         btn.textContent = i + 1;
@@ -110,8 +108,6 @@ function renderPagination(pageData) {
         container.appendChild(next);
     }
 }
-
-
 
 // 格式化日期
 function formatDate(dateTimeStr) {

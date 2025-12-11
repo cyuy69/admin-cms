@@ -26,7 +26,6 @@ public class AdminController {
         model.addAttribute("content", "fragments/admin/orders :: content");
         return "index";
     }
-
     // 後台首頁分頁
     @GetMapping("/dashboard-frag")
     public String dashboardFrag(Model model) {
