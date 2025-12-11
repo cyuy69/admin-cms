@@ -30,20 +30,10 @@ public class Order {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
-    // 對應所屬活動
-    // @ManyToOne(fetch = FetchType.LAZY)
-    // @JoinColumn(name = "event_id")
-    // private Event event;
-
     // 對應的預訂單
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "reservations_id")
     private Reservation reservation;
-
-    // 購買者
-    // @ManyToOne(fetch = FetchType.LAZY)
-    // @JoinColumn(name = "user_id")
-    // private User user;
 
     // 發票資訊
     @Column(name = "invoice_carrier_code")

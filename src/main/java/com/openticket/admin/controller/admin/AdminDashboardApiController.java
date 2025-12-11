@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.openticket.admin.dto.AdminAnalyticsDTO;
 import com.openticket.admin.entity.LoginLog;
-import com.openticket.admin.repository.HomepageSessionLogRepository;
 import com.openticket.admin.service.AnalyticsService;
 import com.openticket.admin.service.LoginLogService;
 

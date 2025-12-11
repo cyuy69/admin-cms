@@ -1,3 +1,30 @@
 <div th:fragment="content">
-    <h2>訂單管理(管理者端)</h2>
+  <h2>訂單管理（管理者端）</h2>
+
+  <div class="order-filters">
+    <input type="text" id="keyword" placeholder="搜尋姓名 / 帳號 / 訂單編號" />
+    <label>開始日期：<input type="date" id="startDate" /></label>
+    <label>結束日期：<input type="date" id="endDate" /></label>
+    <button id="searchBtn">查詢</button>
+  </div>
+
+  <table id="orderTable">
+    <thead>
+      <tr>
+        <th>訂單編號</th>
+        <th>建立時間</th>
+        <th>姓名</th>
+        <th>帳號</th>
+        <th>活動名稱</th>
+        <th>張數</th>
+        <th>狀態</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <!-- 分頁按鈕 -->
+  <div id="pagination"></div>
+
 </div>
+
