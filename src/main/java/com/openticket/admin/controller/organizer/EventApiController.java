@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -27,7 +26,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.openticket.admin.dto.EventListItemDTO;
 import com.openticket.admin.dto.EventTicketRequest;
@@ -37,8 +35,9 @@ import com.openticket.admin.entity.EventDetail;
 import com.openticket.admin.entity.EventStatus;
 import com.openticket.admin.entity.EventTitlePage;
 import com.openticket.admin.repository.EventDetailRepository;
-import com.openticket.admin.repository.EventStatusRepository;
 import com.openticket.admin.repository.EventRepository;
+import com.openticket.admin.repository.EventStatusRepository;
+import com.openticket.admin.security.LoginCompanyProvider;
 import com.openticket.admin.service.DashboardService;
 import com.openticket.admin.service.SmbStorageService;
 import com.openticket.admin.service.event.EventCreationService;
@@ -102,13 +101,16 @@ public class EventApiController {
     @Autowired
     private SmbStorageService smbStorageService;
 
+    @Autowired
+    private LoginCompanyProvider loginCompanyProvider;
+
     @GetMapping
     public Page<EventListItemDTO> getPagedEvents(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "") String keyword,
             @RequestParam(defaultValue = "createdAt") String sort) {
-        Long companyId = 2L; // 之後從 JWT 拿
+        Long companyId = loginCompanyProvider.getCompanyId();
 
         Pageable pageable = PageRequest.of(
                 page - 1, // Spring page 從 0 開始
@@ -146,7 +148,7 @@ public class EventApiController {
 
     @GetMapping("/latest")
     public List<EventListItemDTO> getLatestEvents() {
-        Long companyId = 2L; // 先寫死
+        Long companyId = loginCompanyProvider.getCompanyId();
         return dashboardService.getLatestEvents(companyId);
     }
 
@@ -165,7 +167,7 @@ public class EventApiController {
 
             return ResponseEntity.ok(saved);
 
-        } catch (Exception e) {
+        } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("活動建立失敗：" + e.getMessage());
         }
@@ -173,11 +175,8 @@ public class EventApiController {
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getEventById(@PathVariable Long id) {
-        Event event = eventService.findById(id);
-        if (event == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("找不到活動 ID：" + id);
-        }
+        Long companyId = loginCompanyProvider.getCompanyId();
+        Event event = eventService.findOwnedEvent(id, companyId);
 
         // 活動描述
         EventDetail detail = eventDetailRepository.findByEventId(event.getId());
@@ -216,7 +215,8 @@ public class EventApiController {
             HttpServletRequest request) {
 
         try {
-            Event event = eventService.findById(id);
+            Long companyId = loginCompanyProvider.getCompanyId();
+            Event event = eventService.findOwnedEvent(id, companyId);
 
             // 1. 若活動不可編輯
             String status = eventService.calculateDynamicStatus(event);
@@ -296,8 +296,8 @@ public class EventApiController {
     @PutMapping("/{id}/cancel")
     public ResponseEntity<String> cancelEvent(@PathVariable Long id) {
 
-        Event event = eventRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("找不到活動"));
+        Long companyId = loginCompanyProvider.getCompanyId();
+        Event event = eventService.findOwnedEvent(id, companyId);
 
         // 只能「未開放」才能取消
         if (event.getStatus().getId() != 1) {
@@ -315,23 +315,23 @@ public class EventApiController {
         return ResponseEntity.ok("活動已取消");
     }
 
-    @GetMapping("/all")
-    public List<Map<String, Object>> listEvents() {
-        return eventRepository.findAll().stream()
-                .map(e -> {
-                    Map<String, Object> map = new HashMap<>();
-                    map.put("id", e.getId());
-                    map.put("title", e.getTitle());
-                    return map;
-                })
-                .collect(Collectors.toList());
-    }
+    // @GetMapping("/all")
+    // public List<Map<String, Object>> listEvents() {
+    // return eventRepository.findAll().stream()
+    // .map(e -> {
+    // Map<String, Object> map = new HashMap<>();
+    // map.put("id", e.getId());
+    // map.put("title", e.getTitle());
+    // return map;
+    // })
+    // .collect(Collectors.toList());
+    // }
 
     @GetMapping("/my")
     public List<EventTitleDTO> getMyEventTitles(
             @RequestParam(required = false) String keyword) {
 
-        Long companyId = 2L; // TODO JWT
+        Long companyId = loginCompanyProvider.getCompanyId(); // TODO JWT
         return eventQueryService.getEventTitles(companyId, keyword);
     }
 

@@ -22,6 +22,7 @@ import com.openticket.admin.repository.EventDetailRepository;
 import com.openticket.admin.repository.EventRepository;
 import com.openticket.admin.repository.EventStatusRepository;
 import com.openticket.admin.repository.UserRepository;
+import com.openticket.admin.security.LoginCompanyProvider;
 import com.openticket.admin.service.SmbStorageService;
 
 @Service
@@ -46,7 +47,10 @@ public class EventCreationService {
     @Autowired
     private UserRepository userRepository;
 
-    /**
+    @Autowired
+    private LoginCompanyProvider loginCompanyProvider;
+
+    /*
      * 建立活動(Event + 圖片 + 票種 + 描述）
      */
     public Event createEventWithAll(
@@ -56,8 +60,11 @@ public class EventCreationService {
             String description) throws IOException {
 
         // 1. 設定公司
-        User company = userRepository.findById(2L)
-                .orElseThrow(() -> new RuntimeException("User id=2 not found"));
+        Long companyId = loginCompanyProvider.getCompanyId();
+
+        User company = userRepository.findById(companyId)
+                .orElseThrow(() -> new RuntimeException("User not found: " + companyId));
+
         event.setCompanyUser(company);
 
         // 2. 設定動態狀態
@@ -119,7 +126,6 @@ public class EventCreationService {
             return 4L; // 開放購票
         if (now.isBefore(end))
             return 2L; // 活動進行中
-                       // 3L → 已結束
-        return 3L;
+        return 3L; // 已結束
     }
 }

@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.openticket.admin.security.LoginCompanyProvider;
 import com.openticket.admin.service.DashboardService;
 
 @RestController
@@ -16,10 +17,13 @@ public class DashboardApiController {
     @Autowired
     private DashboardService dashboardService;
 
+    @Autowired
+    private LoginCompanyProvider loginCompanyProvider;
+
     @GetMapping("/kpi")
     public Map<String, Object> getKpi() {
 
-        Long companyId = 2L;
+        Long companyId = loginCompanyProvider.getCompanyId();
 
         Map<String, Object> kpi = dashboardService.getOrganizerKpi(companyId);
 

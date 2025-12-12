@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.openticket.admin.dto.TicketTypeDto;
 import com.openticket.admin.entity.TicketType;
 import com.openticket.admin.entity.User;
+import com.openticket.admin.security.LoginCompanyProvider;
 import com.openticket.admin.service.TicketTypeService;
 
 @RestController
@@ -31,16 +32,14 @@ public class TicketTypeController {
                 "user",
                 "userId",
                 "createdAt",
-                "isDefault"
-        );
+                "isDefault");
     }
 
     @Autowired
     private TicketTypeService service;
 
-    private Long getCurrentUserId() {
-        return 2L;
-    }
+    @Autowired
+    private LoginCompanyProvider loginCompanyProvider;
 
     // 查全部票種（屬於當前主辦方的）
     @GetMapping
@@ -51,9 +50,9 @@ public class TicketTypeController {
     @GetMapping("/for-event")
     public List<TicketTypeDto> getForEvent() {
 
-        Long userId = getCurrentUserId();
+        Long companyId = loginCompanyProvider.getCompanyId();
 
-        return service.getAllForOrganizer(userId).stream()
+        return service.getAllForOrganizer(companyId).stream()
                 .map(tt -> new TicketTypeDto(
                         tt.getId(),
                         tt.getName(),
@@ -77,13 +76,13 @@ public class TicketTypeController {
         return service.getOneDto(id);
     }
 
-    // （新增）主辦方自己的票種管理頁 → 只顯示自己的自訂票
+    // 主辦方自己的票種管理頁 → 只顯示自己的自訂票
     @GetMapping("/my")
     public List<TicketTypeDto> getMyTickets() {
 
-        Long userId = getCurrentUserId();
+        Long companyId = loginCompanyProvider.getCompanyId();
 
-        return service.getCustom(userId).stream()
+        return service.getCustom(companyId).stream()
                 .map(tt -> new TicketTypeDto(
                         tt.getId(),
                         tt.getName(),
@@ -97,13 +96,8 @@ public class TicketTypeController {
     // 新增票種
     @PostMapping
     public TicketType create(@RequestBody TicketType tt) {
-        // 這邊是硬資料，未來要引入登入驗證，取得用戶ID
-        User user = new User();
-        user.setId(getCurrentUserId());
-
-        tt.setUser(user);
-        tt.setIsDefault(true);
-        return service.create(tt);
+        Long companyId = loginCompanyProvider.getCompanyId();
+        return service.create(tt, companyId);
     }
 
     // 修改票種
@@ -122,7 +116,7 @@ public class TicketTypeController {
     @PostMapping("/apply/{templateId}")
     public TicketType applyTemplate(@PathVariable Long templateId) {
 
-        Long userId = getCurrentUserId();
-        return service.applyTemplate(templateId, userId);
+        Long companyId = loginCompanyProvider.getCompanyId();
+        return service.applyTemplate(templateId, companyId);
     }
 }

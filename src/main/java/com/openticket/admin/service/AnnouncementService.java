@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.openticket.admin.entity.Announcement;
+import com.openticket.admin.entity.Role;
 import com.openticket.admin.repository.AnnoRepository;
 
 @Service
@@ -15,8 +16,13 @@ public class AnnouncementService {
     private AnnoRepository repository;
 
     // 查詢所有公告
-    public List<Announcement> getAll() {
-        return repository.findAll();
+    public List<Announcement> getAllForUser(Long companyId, Role role) {
+
+        if (role == Role.ADMIN) {
+            return repository.findAll();
+        }
+
+        return repository.findByUserId(companyId);
     }
 
     // 新增公告
@@ -37,6 +43,7 @@ public class AnnouncementService {
             return null;
         return repository.findById(id).orElse(null);
     }
+
     public void delete(Long id) {
         repository.deleteById(id);
     }

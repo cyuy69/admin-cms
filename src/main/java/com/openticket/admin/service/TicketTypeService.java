@@ -17,21 +17,15 @@ public class TicketTypeService {
     @Autowired
     private TicketTypeRepository repo;
 
-    private User getCurrentUser() {
-        User u = new User();
-        u.setId(2L);
-        return u;
-    }
-
     public List<TicketType> getAll() {
         return repo.findAll();
     }
 
-    public TicketType create(TicketType tt) {
+    public TicketType create(TicketType tt, Long userId) {
 
-        User currentUser = getCurrentUser();
-
-        tt.setUser(currentUser);
+        User user = new User();
+        user.setId(userId);
+        tt.setUser(user);
         tt.setIsDefault(true);
 
         return repo.save(tt);

@@ -200,8 +200,9 @@ async function loadFilterEventList() {
     if (!listContainer) return;
 
     // 取得所有活動
-    let resp = await fetch("/api/events/all");
-    allEvents = await resp.json();
+    let resp = await fetch("/api/events");
+    let page = await resp.json();
+    allEvents = page.content || [];
 
     // 排序:最新(id最大)→ 最舊
     allEvents.sort((a, b) => b.id - a.id);

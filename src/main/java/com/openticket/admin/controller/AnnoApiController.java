@@ -15,7 +15,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.openticket.admin.entity.Announcement;
+import com.openticket.admin.entity.Role;
 import com.openticket.admin.entity.User;
+import com.openticket.admin.security.LoginCompanyProvider;
 import com.openticket.admin.service.AnnouncementService;
 
 @RestController
@@ -34,19 +36,25 @@ public class AnnoApiController {
     @Autowired
     private AnnouncementService service;
 
+    @Autowired
+    private LoginCompanyProvider loginCompanyProvider;
+
     // 取得全部公告
     @GetMapping
     public List<Announcement> getAll() {
-        return service.getAll();
+        Long companyId = loginCompanyProvider.getCompanyId();
+        Role role = loginCompanyProvider.getRole();
+
+        return service.getAllForUser(companyId, role);
     }
 
     // 新增公告
     @PostMapping
     public Announcement create(@RequestBody Announcement ann) {
-
+        Long companyId = loginCompanyProvider.getCompanyId();
         // 這邊是硬資料，未來要引入登入驗證，取得用戶ID
         User user = new User();
-        user.setId(2L);
+        user.setId(companyId);
         ann.setUser(user);
 
         return service.create(ann);

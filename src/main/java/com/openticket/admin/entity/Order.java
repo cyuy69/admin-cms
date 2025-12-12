@@ -1,6 +1,5 @@
 package com.openticket.admin.entity;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -55,9 +54,6 @@ public class Order {
     private String invoiceValue;
 
     private String status;
-
-    @Column(name = "total_amount")
-    private BigDecimal totalAmount;
 
     // 與 CheckoutOrder 的一對多
     @OneToMany(mappedBy = "order")

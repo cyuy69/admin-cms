@@ -1,4 +1,6 @@
-package com.openticket.admin.entity;
+package com.openticket.admin.repository;
+
+import com.openticket.admin.entity.Role;
 
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;

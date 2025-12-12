@@ -162,4 +162,15 @@ public class EventService {
         return "已結束";
     }
 
+    public Event findOwnedEvent(Long eventId, Long companyId) {
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new RuntimeException("找不到活動 ID=" + eventId));
+
+        if (!event.getCompanyUser().getId().equals(companyId)) {
+            throw new RuntimeException("無權限存取此活動");
+        }
+
+        return event;
+    }
+
 }
