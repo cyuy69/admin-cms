@@ -36,7 +36,12 @@ function loadContent(event, link) {
         newUrl = "/organizer/dashboard" + (logicalPath ? "/" + logicalPath : "");
     }
 
-    history.pushState(null, "", newUrl);
+    history.pushState(
+        { url, logicalPath },
+        "",
+        newUrl
+    );
+
 
     // Fetch fragment
     fetch(url)
@@ -54,6 +59,50 @@ function loadContent(event, link) {
 }
 
 window.addEventListener("DOMContentLoaded", () => {
+
+    if (!history.state) {
+        const path = location.pathname;
+
+        let url = null;
+        let logicalPath = "";
+
+        document.querySelectorAll(".sidebar a").forEach(a => {
+            if (a.classList.contains("dropdown-toggle")) return;
+
+            const dataPath = a.dataset.path || "";
+            const href = a.getAttribute("href");
+
+            // Admin
+            if (path.startsWith("/admin")) {
+                if (("/admin/" + dataPath) === path ||
+                    (path === "/admin/dashboard" && dataPath === "admin-dashboard")) {
+                    url = href;
+                    logicalPath = dataPath;
+                }
+            }
+
+            // Organizer
+            if (path.startsWith("/organizer/dashboard")) {
+                if (path === "/organizer/dashboard" && dataPath === "") {
+                    url = href;
+                    logicalPath = dataPath;
+                }
+                if (("/organizer/dashboard/" + dataPath) === path) {
+                    url = href;
+                    logicalPath = dataPath;
+                }
+            }
+        });
+
+        if (url) {
+            history.replaceState(
+                { url, logicalPath },
+                "",
+                location.pathname
+            );
+        }
+    }
+
     pageInitializer()
 
     // 收和所有 dropdown
@@ -168,4 +217,42 @@ function toggleDropdown(id) {
     parentLi.classList.add("expanded");
 }
 
+window.addEventListener("popstate", (e) => {
+    if (!e.state) return;
+
+    const { url, logicalPath } = e.state;
+
+    // 重新 fetch 對應 fragment
+    fetch(url)
+        .then(response => {
+            if (!response.ok) throw new Error("載入失敗: " + url);
+            return response.text();
+        })
+        .then(html => {
+            document.getElementById("main-content-area").innerHTML = html;
+            pageInitializer();
+        })
+        .catch(err => console.error("popstate 載入失敗", err));
+
+    // ===== 同步 sidebar active 狀態 =====
+    document.querySelectorAll(".sidebar li")
+        .forEach(li => li.classList.remove("active"));
+
+    const link = document.querySelector(
+        `.sidebar a[data-path="${logicalPath}"]`
+    );
+
+    if (link) {
+        const li = link.closest("li");
+        if (li) li.classList.add("active");
+
+        localStorage.setItem("activeLink", link.id);
+
+        const dropdown = link.closest(".dropdown-menu");
+        if (dropdown) {
+            dropdown.classList.add("show");
+            dropdown.style.maxHeight = "none";
+        }
+    }
+});
 
