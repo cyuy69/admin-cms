@@ -620,7 +620,7 @@ function loadEventList() {
 
             html += "</tbody></table>";
             container.innerHTML = html;
-            renderPagination(data);
+            renderEventPagination(data);
         })
         .catch(err => {
             console.error("載入活動失敗：", err);
@@ -738,8 +738,8 @@ function highlightSortButton() {
     }
 }
 
-function renderPagination(data) {
-    const container = document.getElementById("pagination");
+function renderEventPagination(data) {
+    const container = document.getElementById("eventPagination");
     if (!container) return;
 
     let html = "";

@@ -1,9 +1,12 @@
 function initAnnouncement() {
+    console.log('初始化');
     let editingId = null;
 
     loadAnnouncements();
 
     function loadAnnouncements() {
+        console.log('進來');
+
         $.get("/api/announcements", function (data) {
             if (!data || data.length === 0) {
                 $("#anno-list").html("<p>目前沒有公告</p>");

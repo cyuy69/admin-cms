@@ -1,101 +1,62 @@
 <div th:fragment="sidebar">
   <ul>
     <!-- 主辦方的首頁 -->
-    <li>
-      <a
-        id="sidebar-home"
-        href="/organizer/dashboard-frag"
-        onclick="loadContent(event, this)"
-        data-path=""
-        >首頁</a
-      >
+    <li th:if="${role == RoleEnum.COMPANY}">
+      <a id="sidebar-home" href="/organizer/dashboard-frag" onclick="loadContent(event, this)" data-path="">首頁</a>
     </li>
 
     <!-- 管理者的首頁 -->
-    <li>
-      <a
-        id="sidebar-admin-dashboard"
-        href="/admin/dashboard-frag"
-        data-path="dashboard"
-        onclick="loadContent(event, this)"
-      >
+    <li th:if="${role == RoleEnum.ADMIN}">
+      <a id="sidebar-admin-dashboard" href="/admin/dashboard-frag" data-path="dashboard"
+        onclick="loadContent(event, this)">
         (管理者)首頁
       </a>
     </li>
 
     <li>
-      <a
-        href="javascript:void(0);"
-        class="dropdown-toggle"
-        onclick="toggleDropdown('content-dropdown')"
-      >
+      <a href="javascript:void(0);" class="dropdown-toggle" onclick="toggleDropdown('content-dropdown')">
         內容管理
       </a>
       <ul id="content-dropdown" class="dropdown-menu">
         <li>
-          <a
-            id="sidebar-anno"
-            href="/organizer/announcement-frag"
-            data-path="announcement"
-            onclick="loadContent(event, this)"
-          >
+          <a id="sidebar-anno"
+            th:href="${role == RoleEnum.ADMIN ? '/admin/announcement-frag' : '/organizer/announcement-frag'}"
+            data-path="announcement" onclick="loadContent(event, this)">
             ．公告管理
           </a>
         </li>
 
-        <li>
-          <a
-            id="sidebar-event"
-            href="/organizer/event-frag"
-            data-path="event"
-            onclick="loadContent(event, this)"
-          >
+        <li th:if="${role == RoleEnum.COMPANY}">
+          <a id="sidebar-event" href="/organizer/event-frag" data-path="event" onclick="loadContent(event, this)">
             ．活動管理
           </a>
         </li>
 
-        <li>
-          <a
-            id="sidebar-admin-users"
-            href="/admin/dashboard/users-frag"
-            data-path="dashboard/users"
-            onclick="loadContent(event, this)"
-          >
+        <li th:if="${role == RoleEnum.ADMIN}">
+          <a id="sidebar-admin-users" href="/admin/dashboard/users-frag" data-path="dashboard/users"
+            onclick="loadContent(event, this)">
             ．(管理者)使用者權限管理
           </a>
         </li>
       </ul>
     </li>
 
-    <li>
-      <a
-        id="sidebar-analytics"
-        href="/organizer/analytics/traffic-frag"
-        data-path="analytics/traffic"
-        onclick="loadContent(event, this)"
-      >
+    <li th:if="${role == RoleEnum.COMPANY}">
+      <a id="sidebar-analytics" href="/organizer/analytics/traffic-frag" data-path="analytics/traffic"
+        onclick="loadContent(event, this)">
         流量與銷售分析
       </a>
     </li>
 
-    <li>
-      <a
-        id="sidebar-orders"
-        href="/organizer/orders-frag"
-        data-path="orders"
-        onclick="loadContent(event, this)"
-      >
+    <li th:if="${role == RoleEnum.COMPANY}">
+      <a id="sidebar-orders" href="/organizer/orders-frag" data-path="orders" onclick="loadContent(event, this)">
         訂單查詢
       </a>
     </li>
 
-    <li>
-      <a
-        id="sidebar-admin-orders"
-        href="/admin/dashboard/orders-frag"
-        data-path="dashboard/orders"
-        onclick="loadContent(event, this)"
-      >
+    <li th:if="${role == RoleEnum.ADMIN}">
+      <a id="sidebar-admin-orders" href="/admin/dashboard/orders-frag" data-path="dashboard/orders"
+        onclick="loadContent(event, this)">
         (管理者)訂單查詢
       </a>
     </li>

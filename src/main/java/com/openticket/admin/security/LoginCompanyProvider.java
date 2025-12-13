@@ -12,10 +12,10 @@ public class LoginCompanyProvider {
      * 之後改成 JWT / SecurityContext
      */
     public Long getCompanyId() {
-        return 2L;
+        return 3L;
     }
 
     public Role getRole() {
-        return Role.COMPANY; // or ADMIN
+        return Role.ADMIN; // or ADMIN
     }
 }

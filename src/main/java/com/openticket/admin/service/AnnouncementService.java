@@ -19,7 +19,8 @@ public class AnnouncementService {
     public List<Announcement> getAllForUser(Long companyId, Role role) {
 
         if (role == Role.ADMIN) {
-            return repository.findAll();
+            return repository.findAdminAnnouncements();
+            // return repository.findAll();
         }
 
         return repository.findByUserId(companyId);

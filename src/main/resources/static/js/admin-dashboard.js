@@ -1,8 +1,8 @@
-// ===== 全域圖表變數 =====
+// 全域圖表變數
 let adminTrafficChart = null;
 let adminTxChart = null;
 
-// ===== 初始化 =====
+// 初始化
 function initAdminDashboard() {
 
     console.log("Admin Dashboard 初始化");
@@ -35,7 +35,7 @@ function initAdminDashboard() {
     });
 }
 
-// ===== 載入分析 API =====
+// 載入分析 API
 async function loadAdminAnalytics() {
     const startEl = document.getElementById("adminStartDate");
     const endEl = document.getElementById("adminEndDate");
@@ -58,7 +58,7 @@ async function loadAdminAnalytics() {
 
         console.log("後端回傳:", data);
 
-        // ===== 數據防呆處理 =====
+        // 數據防呆處理
         const views = data.homepageViews ?? 0;
         const traffic = data.traffic ?? { labels: [], data: [] };
         const transactions = data.transactions ?? { labels: [], data: [] };
@@ -66,7 +66,7 @@ async function loadAdminAnalytics() {
         const totalTx = data.totalTransactions ?? transactions.data.reduce((a, b) => a + b, 0);
         const successRate = data.successRate ?? 0;
 
-        // ===== 更新 KPI 卡片 =====
+        // 更新 KPI 卡片
         // 使用動畫數字效果 (可選) 或直接賦值
         updateText("kpiHomepageViews", views.toLocaleString());
         updateText("kpiTransactions", totalTx.toLocaleString());
@@ -76,7 +76,7 @@ async function loadAdminAnalytics() {
             document.getElementById("kpiSuccessRate").textContent = percentage;
         }
 
-        // ===== 渲染圖表 =====
+        // 渲染圖表
         renderAdminTrafficChart(traffic);
         renderAdminTxChart(transactions);
 
@@ -90,7 +90,7 @@ function updateText(id, text) {
     if (el) el.textContent = text;
 }
 
-// ======== 共用圖表設定 (美化用) ========
+// 共用圖表設定 (美化用)
 const commonChartOptions = {
     responsive: true,
     maintainAspectRatio: false,
@@ -126,7 +126,7 @@ const commonChartOptions = {
     }
 };
 
-// ======== 日流量折線圖 ========
+// 日流量折線圖
 function renderAdminTrafficChart(trafficData) {
     const ctx = document.getElementById("adminTrafficChart");
     if (!ctx) return;
@@ -154,7 +154,7 @@ function renderAdminTrafficChart(trafficData) {
     });
 }
 
-// ======== 銷售額折線圖 ========
+// 銷售額折線圖
 function renderAdminTxChart(txData) {
     const ctx = document.getElementById("adminTxChart");
     if (!ctx) return;
@@ -182,12 +182,12 @@ function renderAdminTxChart(txData) {
     });
 }
 
-// ====== 登入紀錄參數 ======
+// 登入紀錄參數
 let loginLogPage = 0;
 let loginLogSize = 10;
 let loginLogKeyword = "";
 
-// ====== 初始化登入紀錄 ======
+// 初始化登入紀錄
 function initAdminLoginLogs() {
     const searchBtn = document.getElementById("loginLogSearchBtn");
     if (searchBtn) {
@@ -220,7 +220,7 @@ function initAdminLoginLogs() {
     loadLoginLogs();
 }
 
-// ====== 呼叫 API ======
+// 呼叫 API
 async function loadLoginLogs() {
     const url = `/api/admin/login-logs?keyword=${loginLogKeyword}&page=${loginLogPage}&size=${loginLogSize}`;
 
@@ -248,7 +248,7 @@ async function loadLoginLogs() {
     }
 }
 
-// ====== 渲染表格 (增加 Badge 樣式) ======
+// 渲染表格 (增加 Badge 樣式)
 function renderLoginLogTable(list) {
     const tbody = document.getElementById("loginLogTableBody");
     if (!tbody) return;
@@ -297,7 +297,7 @@ function resetDateRange() {
 }
 
 
-// ====== 轉換日期格式 ======
+// 轉換日期格式
 function formatDateTime(str) {
     if (!str) return "-";
     const d = new Date(str);
@@ -306,7 +306,7 @@ function formatDateTime(str) {
     return `${d.getFullYear()}/${pad(d.getMonth() + 1)}/${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
-// ====== 解析 User-Agent (簡化顯示) ======
+// 解析 User-Agent (簡化顯示)
 function parseUserAgent(ua) {
     if (!ua) return "-";
 

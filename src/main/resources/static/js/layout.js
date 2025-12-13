@@ -42,7 +42,6 @@ function loadContent(event, link) {
         newUrl
     );
 
-
     // Fetch fragment
     fetch(url)
         .then((response) => {
@@ -51,69 +50,70 @@ function loadContent(event, link) {
         })
         .then((html) => {
             document.getElementById("main-content-area").innerHTML = html;
-            pageInitializer();
+            requestAnimationFrame(() => {
+                pageInitializer();
+                initAnnouncement();
+            });
+
         })
         .catch((error) => {
             console.error("載入錯誤:", error);
         });
 }
 
-window.addEventListener("DOMContentLoaded", () => {
+function initializeSidebar() {
+    updateHistoryState();
+    restoreDropdownState();
+    restoreActiveState();
+    autoActivateByUrl();
+}
 
-    if (!history.state) {
-        const path = location.pathname;
+// 更新history狀態
+function updateHistoryState() {
+    if (history.state) return;
 
-        let url = null;
-        let logicalPath = "";
+    const path = location.pathname;
+    let url = null;
+    let logicalPath = "";
 
-        document.querySelectorAll(".sidebar a").forEach(a => {
-            if (a.classList.contains("dropdown-toggle") ||
-                a.classList.contains("external-link")) return;
+    document.querySelectorAll(".sidebar a").forEach(a => {
+        if (a.classList.contains("dropdown-toggle") || a.classList.contains("external-link")) return;
 
-            const dataPath = a.dataset.path || "";
-            const href = a.getAttribute("href");
+        const dataPath = a.dataset.path || "";
+        const href = a.getAttribute("href");
 
-            // Admin
-            if (path.startsWith("/admin")) {
-                if (("/admin/" + dataPath) === path ||
-                    (path === "/admin/dashboard" && dataPath === "admin-dashboard")) {
-                    url = href;
-                    logicalPath = dataPath;
-                }
+        if (path.startsWith("/admin")) {
+            if (("/admin/" + dataPath) === path || (path === "/admin/dashboard" && dataPath === "admin-dashboard")) {
+                url = href;
+                logicalPath = dataPath;
             }
-
-            // Organizer
-            if (path.startsWith("/organizer/dashboard")) {
-                if (path === "/organizer/dashboard" && dataPath === "") {
-                    url = href;
-                    logicalPath = dataPath;
-                }
-                if (("/organizer/dashboard/" + dataPath) === path) {
-                    url = href;
-                    logicalPath = dataPath;
-                }
-            }
-        });
-
-        if (url) {
-            history.replaceState(
-                { url, logicalPath },
-                "",
-                location.pathname
-            );
         }
+
+        if (path.startsWith("/organizer/dashboard")) {
+            if (path === "/organizer/dashboard" && dataPath === "") {
+                url = href;
+                logicalPath = dataPath;
+            }
+            if (("/organizer/dashboard/" + dataPath) === path) {
+                url = href;
+                logicalPath = dataPath;
+            }
+        }
+    });
+
+    if (url) {
+        history.replaceState({ url, logicalPath }, "", location.pathname);
     }
+}
 
-    pageInitializer()
-
-    // 收和所有 dropdown
-    document.querySelectorAll(".dropdown-menu").forEach((menu) => {
+// 還原下拉選單的展開狀態
+function restoreDropdownState() {
+    document.querySelectorAll(".dropdown-menu").forEach(menu => {
         menu.classList.remove("show");
         menu.style.maxHeight = "0";
     });
 
-    // 還原 dropdown 狀態
-    document.querySelectorAll(".dropdown-menu").forEach((menu) => {
+    document.querySelectorAll(".dropdown-menu").forEach(menu => {
         const id = menu.id;
         const state = localStorage.getItem("dropdown:" + id);
         if (state === "open") {
@@ -121,67 +121,65 @@ window.addEventListener("DOMContentLoaded", () => {
             menu.style.maxHeight = "none";
         }
     });
+}
 
-    // 還原active樣式
+// 還原active樣式
+function restoreActiveState() {
     const activeId = localStorage.getItem("activeLink");
-    if (activeId) {
-        const link = document.getElementById(activeId);
-        if (link) {
-            const li = link.closest("li");
-            if (li) li.classList.add("active");
+    if (!activeId) return;
 
-            const dropdown = link.closest(".dropdown-menu");
-            if (dropdown) dropdown.classList.add("show");
+    const link = document.getElementById(activeId);
+    if (!link) return;
+
+    const li = link.closest("li");
+    if (li) li.classList.add("active");
+
+    const dropdown = link.closest(".dropdown-menu");
+    if (dropdown) dropdown.classList.add("show");
+}
+
+// 根據url自動設定active
+function autoActivateByUrl() {
+    const path = location.pathname;
+    let matchLink = null;
+
+    document.querySelectorAll(".sidebar a").forEach(a => {
+        if (a.classList.contains("dropdown-toggle") || a.classList.contains("external-link")) return;
+
+        const dataPath = a.dataset.path || "";
+
+        if (path.startsWith("/admin")) {
+            if (("/admin/" + dataPath) === path || (path === "/admin/dashboard" && dataPath === "admin-dashboard")) {
+                matchLink = a;
+            }
         }
+
+        if (path.startsWith("/organizer/dashboard")) {
+            if (path === "/organizer/dashboard" && dataPath === "") {
+                matchLink = a;
+            }
+            if (("/organizer/dashboard/" + dataPath) === path) {
+                matchLink = a;
+            }
+        }
+    });
+
+    if (!matchLink) return;
+
+    const li = matchLink.closest("li");
+    if (li) li.classList.add("active");
+    localStorage.setItem("activeLink", matchLink.id);
+
+    const dropdown = matchLink.closest(".dropdown-menu");
+    if (dropdown) {
+        dropdown.classList.add("show");
+        dropdown.style.maxHeight = "none";
+        const parentLi = dropdown.closest("li");
+        if (parentLi) parentLi.classList.add("expanded");
     }
-    // 依照 URL 自動設定 active
-    (function autoActiveByUrl() {
-        const path = location.pathname;
+}
 
-        let matchLink = null;
-
-        document.querySelectorAll(".sidebar a").forEach(a => {
-            if (a.classList.contains("dropdown-toggle") ||
-                a.classList.contains("external-link")
-            ) return;
-
-            const dataPath = a.dataset.path || "";
-            // Admin
-            if (path.startsWith("/admin")) {
-                if (("/admin/" + dataPath) === path ||
-                    (path === "/admin/dashboard" && dataPath === "admin-dashboard")) {
-                    matchLink = a;
-                }
-            }
-
-            // Organizer
-            if (path.startsWith("/organizer/dashboard")) {
-                if (path === "/organizer/dashboard" && dataPath === "") {
-                    matchLink = a;
-                }
-                if (("/organizer/dashboard/" + dataPath) === path) {
-                    matchLink = a;
-                }
-            }
-        });
-
-        if (matchLink) {
-            const li = matchLink.closest("li");
-            li.classList.add("active");
-            localStorage.setItem("activeLink", matchLink.id);
-
-            // 如果存在，展開上層的 dropdown-menu
-            const dropdown = matchLink.closest(".dropdown-menu");
-            if (dropdown) {
-                dropdown.classList.add("show");
-                dropdown.style.maxHeight = "none"; // 防動畫卡住
-                const parentLi = dropdown.closest("li");
-                if (parentLi) parentLi.classList.add("expanded");
-            }
-        }
-    })();
-});
-
+// 下拉選單展開動畫
 function toggleDropdown(id) {
     const menu = document.getElementById(id);
     const parentLi = menu.closest("li");
@@ -259,3 +257,11 @@ window.addEventListener("popstate", (e) => {
     }
 });
 
+// ==========================================
+// 系統初始化入口 (解決時序問題的關鍵)
+// ==========================================
+window.addEventListener("DOMContentLoaded", async () => {
+    initializeSidebar();
+    initAnnouncement();
+    pageInitializer();
+});

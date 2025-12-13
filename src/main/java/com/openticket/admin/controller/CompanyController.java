@@ -5,26 +5,27 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import jakarta.servlet.http.HttpServletRequest;
+import com.openticket.admin.entity.Role;
 
-// =============廠商端=============
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
+
 @Controller
 @RequestMapping("/organizer")
-public class CompanyController {
+public class CompanyController extends BaseController {
 
-    // =============後台主頁=============
     @GetMapping("/dashboard")
-    public String dashboard(Model model) {
+    public String dashboard(Model model, HttpSession session) {
+        setupRole(model, session, Role.COMPANY);
         model.addAttribute("content", "fragments/dashboard :: content");
         return "index";
     }
 
-    // =============後台分頁=============
     @GetMapping("/dashboard/**")
-    public String dashboardSub(HttpServletRequest request, Model model) {
+    public String dashboardSub(HttpServletRequest request, Model model, HttpSession session) {
+        setupRole(model, session, Role.COMPANY);
         String path = request.getRequestURI();
         String subPath = path.replace("/organizer/dashboard/", "");
-
         String fragmentPath;
 
         // 所有 event/edit/** 都丟到 event fragment
@@ -32,10 +33,6 @@ public class CompanyController {
             fragmentPath = "fragments/event :: content";
         } else {
             switch (subPath) {
-                case "announcement":
-                    fragmentPath = "fragments/announcement :: content";
-                    break;
-
                 case "event":
                 case "event/ticket":
                     fragmentPath = "fragments/event :: content";
@@ -60,11 +57,7 @@ public class CompanyController {
         return "index";
     }
 
-    // =============公告與活動=============
-    @GetMapping("/dashboard-frag")
-    public String eventPage(Model model) {
-        return "fragments/dashboard :: content";
-    }
+    // =============活動=============
 
     @GetMapping("/announcement-frag")
     public String annoFragment(Model model) {

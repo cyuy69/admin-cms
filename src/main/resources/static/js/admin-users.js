@@ -86,7 +86,7 @@ async function toggleActive(id, now) {
 }
 
 function renderUserPagination(data) {
-    const container = document.getElementById("pagination");
+    const container = document.getElementById("UserPagination");
     container.innerHTML = "";
 
     const total = data.totalPages;

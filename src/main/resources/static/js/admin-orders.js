@@ -38,7 +38,7 @@ async function loadOrders(page) {
         console.log("後端回傳 Page:", data);
 
         renderOrders(data.content);
-        renderPagination(data);
+        renderOrderPagination(data);
 
     } catch (err) {
         console.error("無法取得訂單資料:", err);
@@ -73,8 +73,8 @@ function renderOrders(list) {
 }
 
 // 分頁按鈕
-function renderPagination(pageData) {
-    const container = document.getElementById("pagination");
+function renderOrderPagination(pageData) {
+    const container = document.getElementById("ordersPagination");
     container.innerHTML = "";
 
     const current = pageData.number;

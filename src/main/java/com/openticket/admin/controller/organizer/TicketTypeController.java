@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.openticket.admin.dto.TicketTypeDto;
 import com.openticket.admin.entity.TicketType;
-import com.openticket.admin.entity.User;
 import com.openticket.admin.security.LoginCompanyProvider;
 import com.openticket.admin.service.TicketTypeService;
 
