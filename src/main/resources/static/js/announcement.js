@@ -1,30 +1,85 @@
+let currentPage = 0;
+let pageSize = 5;
+let currentKeyword = null;
+
+function loadWithCondition(page = 0) {
+    if (currentKeyword) {
+        searchAnnouncements(page);
+    } else {
+        loadAnnouncements(page);
+    }
+}
+
+function loadAnnouncements(page = 0) {
+    currentPage = page;
+    currentKeyword = null;
+
+    $.get("/api/announcements", {
+        page: page,
+        size: pageSize
+    }, renderResult);
+}
+
+function searchAnnouncements(page = 0) {
+    const keyword = $("#searchKeyword").val().trim();
+    if (!keyword) {
+        currentKeyword = null;
+        loadAnnouncements(0);
+        return;
+    }
+
+    currentPage = page;
+    currentKeyword = keyword;
+
+    $.get("/api/announcements", {
+        page: page,
+        size: pageSize,
+        keyword: keyword
+    }, renderResult);
+}
+
+function renderResult(data) {
+    if (!data || !data.content || data.content.length === 0) {
+        $("#anno-list").html("<p>沒有資料</p>");
+        $("#pagination").html("");
+        return;
+    }
+
+    const html = data.content.map(ann => `
+        <div class="card ann-item" data-id="${ann.id}">
+            <div class="ann-header">
+                <h4 class="ann-title">${ann.title}</h4>
+                <button type="button" class="btn btn-secondary btn-sm edit-btn">編輯</button>
+            </div>
+            <div class="ann-content">${ann.content}</div>
+        </div>
+    `).join("");
+
+    $("#anno-list").html(html);
+    renderPagination(data.totalPages, data.number);
+}
+
+function renderPagination(totalPages, current) {
+    const $p = $("#pagination");
+    $p.html("");
+
+    if (totalPages <= 1) return;
+
+    if (current > 0) {
+        $p.append(`<button class="btn btn-sm" onclick="loadWithCondition(${current - 1})">上一頁</button>`);
+    }
+
+    $p.append(`<span> 第 ${current + 1} / ${totalPages} 頁 </span>`);
+
+    if (current + 1 < totalPages) {
+        $p.append(`<button class="btn btn-sm" onclick="loadWithCondition(${current + 1})">下一頁</button>`);
+    }
+}
+
 function initAnnouncement() {
-    console.log('初始化');
     let editingId = null;
 
-    loadAnnouncements();
-
-    function loadAnnouncements() {
-        console.log('進來');
-
-        $.get("/api/announcements", function (data) {
-            if (!data || data.length === 0) {
-                $("#anno-list").html("<p>目前沒有公告</p>");
-                return;
-            }
-
-            let html = data.map(ann => `
-                <div class="ann-item" data-id="${ann.id}">
-                    <strong>${ann.title}</strong>
-                    <button class="edit-btn">編輯</button>
-                    <p>${ann.content}</p>
-                    <hr>
-                </div>
-            `).join("");
-
-            $("#anno-list").html(html);
-        });
-    }
+    loadAnnouncements(0);
 
     // 表單送出(新增或編輯)
     $(document).off("submit", "#anno-form").on("submit", "#anno-form", function (e) {
@@ -44,7 +99,7 @@ function initAnnouncement() {
             data: JSON.stringify({ title, content }),
             success: function () {
                 resetForm();
-                loadAnnouncements();
+                loadWithCondition(currentPage);
             },
             error: function (xhr) {
                 console.error("送出失敗：", xhr.responseText);
@@ -53,6 +108,10 @@ function initAnnouncement() {
         });
 
     });
+
+    // 查詢
+    $(document).off("click", "#search-btn")
+        .on("click", "#search-btn", () => searchAnnouncements(0));
 
     // 編輯
     $(document).off("click", ".edit-btn").on("click", ".edit-btn", function () {
@@ -66,8 +125,8 @@ function initAnnouncement() {
             return;
         }
 
-        const title = container.find("strong").text();
-        const content = container.find("p").text();
+        const title = container.find(".ann-title").text();
+        const content = container.find(".ann-content").text();
 
         editingId = id;
 
@@ -90,8 +149,6 @@ function initAnnouncement() {
         resetForm();
     });
 
-
-
     // 刪除公告
     $("#delete-edit-btn").on("click", function () {
         if (!editingId) return;
@@ -102,7 +159,7 @@ function initAnnouncement() {
             method: "DELETE",
             success: function () {
                 resetForm();
-                loadAnnouncements();
+                loadWithCondition(currentPage);
             }
         });
     });
@@ -110,11 +167,13 @@ function initAnnouncement() {
     // 重設表單
     function resetForm() {
         editingId = null;
-        $("#anno-form")[0].reset();
+        const formEl = $("#anno-form")[0];
+        if (!formEl) return;
         $("#ann-id").val("");
         $("#anno-submit-btn").text("新增公告");
         $("#cancel-edit-btn, #delete-edit-btn").hide();
-
         $(".edit-btn").text("編輯");
     }
 }
+
+$(document).ready(initAnnouncement);

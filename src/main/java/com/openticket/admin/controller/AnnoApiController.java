@@ -1,8 +1,10 @@
 package com.openticket.admin.controller;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.openticket.admin.entity.Announcement;
@@ -41,11 +44,22 @@ public class AnnoApiController {
 
     // 取得全部公告
     @GetMapping
-    public List<Announcement> getAll() {
+    public Page<Announcement> getAll(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String keyword) {
+
         Long companyId = loginCompanyProvider.getCompanyId();
         Role role = loginCompanyProvider.getRole();
 
-        return service.getAllForUser(companyId, role);
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+
+        if (keyword == null || keyword.isEmpty()) {
+            return service.getAllForUser(companyId, role, pageable);
+        } else {
+            // 這裡直接呼叫 repository 的分頁查詢
+            return service.searchByKeyword(keyword, pageable);
+        }
     }
 
     // 新增公告

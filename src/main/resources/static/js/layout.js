@@ -27,12 +27,24 @@ function loadContent(event, link) {
 
     let newUrl;
 
-    // 判斷是否為 Admin 分頁：href 以 /admin 開頭
-    if (url.startsWith("/admin")) {
+    // Organizer 首頁
+    if (url === "/organizer/dashboard-frag") {
+        newUrl = "/organizer/dashboard";
+
+        // Admin 首頁
+    } else if (url === "/admin/dashboard-frag") {
+        newUrl = "/admin/dashboard";
+
+        // 公告
+    } else if (url.includes("announcement-frag")) {
+        newUrl = "/organizer/announcement";
+
+        // Admin 其他分頁
+    } else if (url.startsWith("/admin")) {
         newUrl = "/admin" + (logicalPath ? "/" + logicalPath : "");
 
+        // Organizer 其他分頁
     } else {
-        // Organizer 分頁
         newUrl = "/organizer/dashboard" + (logicalPath ? "/" + logicalPath : "");
     }
 

@@ -1,19 +1,92 @@
 <div th:fragment="content">
-  <h2>公告管理</h2>
+  <div class="container" style="max-width: 1200px; margin: 2rem auto">
+    <h2 class="section-title">公告管理</h2>
 
-  <form id="anno-form">
-    <input type="hidden" id="ann-id">
-    <input type="text" id="title" placeholder="標題" required /><br><br>
-    <textarea id="content" placeholder="內容" required></textarea><br>
+    <div class="dashboard-grid">
+      <div class="grid-left">
+        <div class="card form-card">
+          <form id="anno-form">
+            <input type="hidden" id="ann-id" />
 
-    <div id="form-buttons" style="display: flex; gap: 10px;">
-      <button type="submit" id="anno-submit-btn">新增公告</button>
-      <button type="button" id="cancel-edit-btn" style="display:none;">取消編輯</button>
-      <button type="button" id="delete-edit-btn" style="display:none;">刪除公告</button>
+            <div class="input-group">
+              <label for="title" class="input-label">公告標題</label>
+              <input
+                type="text"
+                id="title"
+                class="form-input"
+                placeholder="請輸入標題"
+                required
+              />
+            </div>
+
+            <div class="input-group">
+              <label for="content" class="input-label">公告內容</label>
+              <textarea
+                id="content"
+                class="form-input"
+                rows="8"
+                placeholder="請輸入詳細內容"
+                required
+              ></textarea>
+            </div>
+
+            <div class="form-actions">
+              <button
+                type="button"
+                id="cancel-edit-btn"
+                class="btn btn-secondary"
+                style="display: none"
+              >
+                取消編輯
+              </button>
+              <button
+                type="submit"
+                id="anno-submit-btn"
+                class="btn btn-primary"
+              >
+                新增公告
+              </button>
+              <button
+                type="button"
+                id="delete-edit-btn"
+                class="btn btn-danger"
+                style="display: none"
+              >
+                刪除公告
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div class="grid-right">
+        <div class="card list-card">
+          <div
+            class="card-header"
+            style="
+              padding: 1rem;
+              border-bottom: 1px solid #e5e7eb;
+              margin-bottom: 1rem;
+            "
+          >
+            <div class="search-bar" style="padding: 0 1rem 1rem">
+              <input
+                type="text"
+                id="searchKeyword"
+                class="form-input"
+                placeholder="輸入關鍵字查詢公告"
+              />
+              <button id="search-btn" class="btn btn-secondary">查詢</button>
+            </div>
+
+            <h3 style="margin: 0; font-size: 1.1rem; color: #1f2937">
+              公告列表
+            </h3>
+          </div>
+
+          <div id="anno-list" class="anno-list-wrapper"></div>
+        </div>
+      </div>
     </div>
-  </form>
-
-  <hr>
-
-  <div id="anno-list"></div>
+  </div>
 </div>

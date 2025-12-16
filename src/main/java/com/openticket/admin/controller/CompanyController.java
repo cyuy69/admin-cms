@@ -59,9 +59,9 @@ public class CompanyController extends BaseController {
 
     // =============活動=============
 
-    @GetMapping("/announcement-frag")
-    public String annoFragment(Model model) {
-        return "fragments/announcement :: content";
+    @GetMapping("/dashboard-frag")
+    public String dashboardFragment() {
+        return "fragments/dashboard :: content";
     }
 
     @GetMapping("/event-frag")

@@ -1,0 +1,332 @@
+:root {
+    --otp-orange: #f07509;
+    --otp-orange-hover: #d66505;
+    --otp-text: #1f2937;
+    --otp-gray-bg: #f3f4f6;
+    --otp-border: #e5e7eb;
+    --radius-md: 0.5rem;
+    /* 8px */
+}
+
+/* --- 版面樣式 --- */
+.section-title {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: var(--otp-text);
+    margin-bottom: 1.5rem;
+    text-align: center;
+    /* 標題置中看起來比較大器 */
+}
+
+/* 卡片容器 */
+.card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 1rem;
+    /* 較大的圓角 */
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--otp-border);
+    margin-bottom: 1.5rem;
+}
+
+/* --- 表單元件 --- */
+.input-group {
+    margin-bottom: 1rem;
+}
+
+.input-label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #4b5563;
+    margin-bottom: 0.5rem;
+}
+
+.form-input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--otp-border);
+    border-radius: var(--radius-md);
+    font-size: 1rem;
+    transition: all 0.2s;
+    background-color: #f9fafb;
+    box-sizing: border-box;
+    /* 確保 padding 不會撐破寬度 */
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: var(--otp-orange);
+    box-shadow: 0 0 0 3px rgba(240, 117, 9, 0.2);
+    /* 橘色光暈 */
+    background-color: white;
+}
+
+/* --- 按鈕樣式 --- */
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.btn {
+    padding: 0.625rem 1.25rem;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: opacity 0.2s;
+    font-size: 0.95rem;
+}
+
+.btn:active {
+    opacity: 1;
+    filter: brightness(0.85);
+    transform: translateY(1px);
+}
+
+.form-actions .btn {
+    flex: 1;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    white-space: nowrap;
+    padding: 0 0.25rem;
+    font-size: 0.85rem;
+    min-width: 0;
+    overflow: hidden;
+}
+
+
+.btn:hover {
+    opacity: 0.9;
+}
+
+/* 橘色主按鈕 */
+.btn-primary {
+    background-color: var(--otp-orange);
+    color: white;
+    flex: 1;
+    /*讓新增按鈕佔據主要空間*/
+}
+
+/* 灰色次要按鈕 */
+.btn-secondary {
+    background-color: #e5e7eb;
+    color: #374151;
+}
+
+/* 紅色刪除按鈕 */
+.btn-danger {
+    background-color: #ef4444;
+    color: white;
+}
+
+/* --- 分隔線 --- */
+.divider {
+    border: 0;
+    height: 1px;
+    background: #e5e7eb;
+    margin: 2rem 0;
+}
+
+/* --- 列表項目樣式 (JS 生成的) --- */
+.ann-item {
+    transition: transform 0.2s, box-shadow 0.2s;
+    border-left: 5px solid var(--otp-orange);
+    margin-bottom: 0;
+}
+
+.ann-item:hover {
+    transform: translateY(-2px);
+    /* 懸停時輕微浮起 */
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.anno-list-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.ann-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.ann-title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--otp-orange);
+    /* 標題用品牌色 */
+    margin: 0;
+}
+
+.ann-content {
+    color: #4b5563;
+    line-height: 1.5;
+    font-size: 0.95rem;
+
+    /* 關鍵代碼：限制顯示行數 */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    /* 只顯示 2 行，你可以改成 3 */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    /* 超過範圍隱藏 */
+    text-overflow: ellipsis;
+    /* 結尾顯示 ... */
+
+    /* 確保長單字會換行，避免撐開版面 */
+    word-break: break-word;
+    white-space: normal;
+    /* 覆蓋原本的 pre-wrap 以便截斷生效 */
+    margin-top: 0.5rem;
+    /* 與標題拉開一點距離 */
+}
+
+/* 列表中的小按鈕 */
+.btn-sm {
+    padding: 0.25rem 0.75rem;
+    font-size: 0.875rem;
+    white-space: nowrap;
+}
+
+/* --- 儀表板佈局 (左右分欄) --- */
+/*
+   1. 預設樣式（手機 / 平板 / 小螢幕）
+   這裡保留「原本的樣式」，垂直由上往下排
+*/
+.dashboard-grid {
+    display: block;
+    /* 讓區塊像原本一樣，一個接一個往下疊 */
+}
+
+.grid-left,
+.grid-right {
+    width: 100%;
+    /* 寬度佔滿 */
+    margin-bottom: 2rem;
+    /* 上下區塊之間留點距離 */
+}
+
+/* --- 搜尋列專用優化樣式 --- */
+
+/* 1. 調整卡片標頭：讓標題跟搜尋框排成一排 */
+.list-card .card-header {
+    display: flex;
+    flex-direction: row-reverse;
+    /* 維持搜尋在右，標題在左 */
+    justify-content: space-between;
+    /* 一個靠左、一個靠右 */
+    align-items: center;
+    /* 垂直置中 */
+    flex-wrap: nowrap;
+    /* 重要！禁止換行，防止搜尋框掉下來或標題掉下去 */
+    gap: 1rem;
+    height: 60px;
+}
+
+.list-card .card-header h3 {
+    margin: 0;
+    white-space: nowrap;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+/* 2. 調整搜尋區域容器 */
+.search-bar {
+    display: flex;
+    gap: 0.5rem;
+    /* 輸入框跟按鈕的間距 */
+    align-items: center;
+    padding: 0 !important;
+    /* 重要：強制拿掉 HTML 裡的 inline padding，不然會歪掉 */
+    margin: 0;
+    /* 確保乾淨 */
+}
+
+/* 3. 調整搜尋輸入框 */
+.search-bar input {
+    width: 200px;
+    /* 限制寬度，不要讓它佔滿整行 */
+    padding: 0.4rem 0.8rem;
+    /* 稍微縮小內距，看起來比較精緻 */
+    font-size: 0.9rem;
+    height: 38px;
+    /* 固定高度，確保跟按鈕一樣高 */
+}
+
+/* 4. 調整搜尋按鈕 */
+.search-bar button {
+    padding: 0 1rem;
+    /* 左右留點空間 */
+    height: 38px;
+    /* 強制跟輸入框一樣高 */
+    white-space: nowrap;
+    /* 防止按鈕文字換行 */
+    display: flex;
+    align-items: center;
+    /* 文字垂直置中 */
+}
+
+/* --- 手機版 RWD 優化 --- */
+@media (max-width: 576px) {
+
+    /* 手機版時，改回上下排列 */
+    .list-card .card-header {
+        flex-direction: column-reverse;
+        /* 標題在上面，搜尋框在下面 */
+        align-items: stretch;
+        /* 拉寬佔滿 */
+    }
+
+    .search-bar {
+        width: 100%;
+        margin-top: 0.5rem;
+    }
+
+    .search-bar input {
+        width: 100%;
+        /* 手機版輸入框自動填滿 */
+    }
+}
+
+
+/*
+   2. 電腦版樣式（大螢幕）
+   當螢幕寬度「大於 992px」時，才啟動左右分欄
+*/
+@media (min-width: 1200px) {
+    .form-actions .btn {
+        font-size: 0.8rem;
+    }
+
+    .dashboard-grid {
+        display: grid;
+        /* 啟動網格排版 */
+        grid-template-columns: 350px 1fr;
+        /* 左邊固定 350px，右邊自動填滿 */
+        gap: 1.5rem;
+        /* 左右之間的間距 */
+        align-items: start;
+        /* 兩邊靠上對齊 */
+    }
+
+    /* 因為變成左右排了，把原本手機版的下方推擠歸零 */
+    .grid-left,
+    .grid-right {
+        margin-bottom: 0;
+    }
+
+    /* 確保右邊列表區塊有高度限制，方便捲動 */
+    .anno-list-wrapper {
+        max-height: 600px;
+        overflow-y: auto;
+    }
+}

@@ -126,38 +126,36 @@ function initEventFormSubmit() {
 // 編輯按鈕
 function goEdit(id, btn) {
 
-    if (editingEventId === id && btn.dataset.mode === "cancel") {
+    // 1. 強制轉成數字
+    const targetId = Number(id);
 
-        // 1. 重置編輯狀態
+    // 2. 取得目前的編輯 ID (如果是 null 或 0，視為無效)
+    // 這裡我們把 "0" 也當作 "沒在編輯"，避免你的 savedId: 0 問題
+    const currentEditingId = (editingEventId && editingEventId !== 0) ? Number(editingEventId) : null;
+
+    console.log("狀態檢查:", {
+        targetId: targetId,
+        currentEditingId: currentEditingId,
+        isMatch: targetId === currentEditingId
+    });
+
+    if (currentEditingId !== null && currentEditingId === targetId) {
+        // 手動還原按鈕
+        btn.textContent = "編輯";
+        btn.dataset.mode = "edit";
+
         resetEventForm();
-        editingEventId = null;
-
-        // 2. 把所有 edit-btn 重設為「編輯」
-        document.querySelectorAll(".edit-btn").forEach(b => {
-            b.dataset.mode = "edit";
-            b.textContent = "編輯";
-            b.disabled = false;
-            b.style.opacity = 1;
-            b.style.cursor = "pointer";
-        });
-
-        // 3. 隱藏表單內的取消按鈕
-        document.getElementById("eventCancelBtn").style.display = "none";
-
         return;
     }
 
-    // 清空其他按鈕
-    document.querySelectorAll(".edit-btn").forEach(b => {
-        b.dataset.mode = "edit";
-        b.textContent = "編輯";
-    });
+    resetEventForm();
 
-    // 設定這顆按鈕進入取消模式
+    editingEventId = id;
+
     btn.dataset.mode = "cancel";
     btn.textContent = "取消";
 
-    fetch(`/api/events/${id}`)
+    fetch(`/api/events/${targetId}`)
         .then(res => res.json())
         .then(ev => {
             editingEventId = ev.id;
@@ -283,6 +281,7 @@ function initTicketTypeLoader() {
                             <th style="border:1px solid #ccc; padding:6px;">活動票價</th>
                             <th style="border:1px solid #ccc; padding:6px;">活動限量</th>
                             <th style="border:1px solid #ccc; padding:6px;">描述</th>
+                            <th style="padding:8px;">早鳥優惠設定</th> </tr>
                         </tr>
                     </thead>
                     <tbody id="ticketSelectTbody"></tbody>
@@ -504,29 +503,57 @@ function initTabSwitching() {
 
 // 清空活動表單方法
 function resetEventForm() {
+    // ============================================================
+    // 1. 【絕對優先區】先做跟 UI 有關的事 (學票種那邊的邏輯)
+    // ============================================================
 
+    // 清除編輯狀態 ID
     editingEventId = null;
 
-    const form = document.getElementById("eventForm");
-    form.reset();
+    // 強制把列表上「所有」編輯按鈕都還原成「編輯」
+    // 放在第一行，保證按鈕一定會變回來，絕對不會卡死！
+    document.querySelectorAll(".edit-btn").forEach(b => {
+        b.dataset.mode = "edit";
+        b.textContent = "編輯";
+        b.disabled = false;
+        b.style.opacity = 1;
+        b.style.cursor = "pointer";
+    });
 
-    document.getElementById("cover").value = "";
+    // 隱藏取消按鈕
+    const cancelBtn = document.getElementById("eventCancelBtn");
+    if (cancelBtn) cancelBtn.style.display = "none";
 
-    // 清空 TinyMCE
-    // if (tinyMCE.get("description")) {
-    //     tinyMCE.get("description").setContent("");
-    // }
-
-    // 清空封面 preview + 檔名
-    updateCoverPreview(null);
-
-    clearAllTicketRows()
-
-    // 重設提交按鈕
+    // 重設提交按鈕文字
     const submitBtn = document.querySelector("#eventForm button[type='submit']");
-    submitBtn.textContent = "發佈活動";
-    document.getElementById("eventCancelBtn").style.display = "none";
+    if (submitBtn) submitBtn.textContent = "發佈活動";
 
+
+    // ============================================================
+    // 2. 【高風險區】處理複雜資料 (加上防護罩)
+    // ============================================================
+    try {
+        // 重置表單
+        const form = document.getElementById("eventForm");
+        if (form) form.reset();
+
+        // 清空檔案輸入
+        const coverInput = document.getElementById("cover");
+        if (coverInput) coverInput.value = "";
+
+        // 【關鍵差異】活動這邊多了這些複雜功能，容易報錯，所以要包起來
+        // 就算下面這兩行出錯，上面的按鈕也已經修好了，使用者不會發現異狀
+        if (typeof updateCoverPreview === "function") {
+            try { updateCoverPreview(null); } catch (e) { console.warn("清除圖片失敗", e); }
+        }
+
+        if (typeof clearAllTicketRows === "function") {
+            try { clearAllTicketRows(); } catch (e) { console.warn("清除表格失敗", e); }
+        }
+
+    } catch (e) {
+        console.warn("重置表單發生錯誤 (但不影響按鈕操作):", e);
+    }
 }
 
 function clearAllTicketRows() {
@@ -590,7 +617,10 @@ function loadEventList() {
                 let actionButtons = "";
 
                 if (canEdit) {
-                    actionButtons += `<button class="edit-btn" onclick="goEdit(${ev.id}, this)">編輯</button>`;
+                    const isEditing = editingEventId === ev.id;
+                    actionButtons += `<button class="edit-btn" onclick="goEdit(${ev.id}, this)">
+                        ${isEditing ? "取消" : "編輯"}
+                    </button>`;
                 } else {
                     actionButtons += `<button class="edit-btn" disabled style="opacity:0.4; cursor:not-allowed;">編輯</button>`;
                 }

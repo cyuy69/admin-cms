@@ -1,8 +1,8 @@
 package com.openticket.admin.service;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.openticket.admin.entity.Announcement;
@@ -16,14 +16,15 @@ public class AnnouncementService {
     private AnnoRepository repository;
 
     // 查詢所有公告
-    public List<Announcement> getAllForUser(Long companyId, Role role) {
-
+    public Page<Announcement> getAllForUser(Long companyId, Role role, Pageable pageable) {
         if (role == Role.ADMIN) {
-            return repository.findAdminAnnouncements();
-            // return repository.findAll();
+            return repository.findAdminAnnouncements(pageable);
         }
+        return repository.findByUserId(companyId, pageable);
+    }
 
-        return repository.findByUserId(companyId);
+    public Page<Announcement> searchByKeyword(String keyword, Pageable pageable) {
+        return repository.findByTitleContainingOrContentContaining(keyword, keyword, pageable);
     }
 
     // 新增公告

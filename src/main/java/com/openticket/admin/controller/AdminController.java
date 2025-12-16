@@ -12,7 +12,7 @@ import jakarta.servlet.http.HttpSession;
 @Controller
 @RequestMapping("/admin")
 public class AdminController extends BaseController {
-    // 出口管理(如果有權限或session可以直接靠網址進)
+    // 出口管理
     @GetMapping("/dashboard")
     public String dashboard(Model model, HttpSession session) {
         setupRole(model, session, Role.ADMIN);
