@@ -1,0 +1,297 @@
+:root {
+    --events-orange: #f07509;
+    --events-orange-hover: #d66505;
+    --events-black: #1f2937;
+    --events-gray-dark: #4b5563;
+    --events-gray-light: #f3f4f6;
+    --events-border: #e5e7eb;
+    --events-white: #ffffff;
+    --events-danger: #ef4444;
+    --events-radius: 6px;
+}
+
+/* --- 基礎容器與排版 --- */
+.events-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    color: var(--events-black);
+}
+
+.events-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--events-black);
+    margin-bottom: 20px;
+    border-left: 5px solid var(--events-orange);
+    padding-left: 15px;
+}
+
+.events-section {
+    background: var(--events-white);
+    border: 1px solid var(--events-border);
+    border-radius: var(--events-radius);
+    padding: 20px;
+    margin-bottom: 30px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* --- Tab 切換按鈕 --- */
+.events-tab-header {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    border-bottom: 2px solid var(--events-border);
+}
+
+.events-tab-btn {
+    padding: 10px 20px;
+    border: none;
+    background: transparent;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--events-gray-dark);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+    /* 蓋住底線 */
+}
+
+.events-tab-btn:hover {
+    color: var(--events-orange);
+}
+
+.events-tab-btn.active {
+    color: var(--events-orange);
+    border-bottom: 3px solid var(--events-orange);
+}
+
+.events-tab-content {
+    display: none;
+    /* JS 控制顯示 */
+    animation: eventsFadeIn 0.3s ease;
+}
+
+/* --- 表單樣式 --- */
+.events-form-group {
+    margin-bottom: 15px;
+}
+
+.events-label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+    color: var(--events-black);
+}
+
+.events-input,
+.events-textarea,
+.events-select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--events-border);
+    border-radius: var(--events-radius);
+    font-size: 14px;
+    transition: border-color 0.2s;
+    box-sizing: border-box;
+}
+
+.events-input:focus,
+.events-textarea:focus,
+.events-select:focus {
+    outline: none;
+    border-color: var(--events-orange);
+    box-shadow: 0 0 0 3px rgba(240, 117, 9, 0.1);
+}
+
+/* --- 按鈕樣式 --- */
+.events-btn {
+    padding: 8px 16px;
+    border-radius: var(--events-radius);
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    font-size: 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.events-btn-primary {
+    background-color: var(--events-orange);
+    color: white;
+}
+
+.events-btn-primary:hover {
+    background-color: var(--events-orange-hover);
+}
+
+.events-btn-secondary {
+    background-color: var(--events-gray-light);
+    color: var(--events-black);
+    border: 1px solid var(--events-border);
+}
+
+.events-btn-secondary:hover {
+    background-color: #e5e7eb;
+}
+
+.events-btn-danger {
+    background-color: var(--events-danger);
+    color: white;
+}
+
+.events-btn-danger:hover {
+    background-color: #c82333;
+}
+
+/* --- 表格樣式 --- */
+.events-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+    border: 1px solid var(--events-border);
+    background-color: var(--events-white);
+}
+
+.events-table thead tr {
+    background-color: var(--events-gray-light);
+    border-bottom: 2px solid var(--events-border);
+}
+
+.events-table th {
+    color: var(--events-black);
+    font-weight: 700;
+    padding: 12px;
+    text-align: left;
+    border-bottom: 2px solid var(--events-border);
+    white-space: nowrap;
+    text-align: center;
+}
+
+.events-table td {
+    padding: 12px;
+    border-bottom: 1px solid var(--events-border);
+    vertical-align: middle;
+    vertical-align: middle;
+    text-align: center;
+    color: var(--events-gray-dark);
+}
+
+.events-table tr:hover {
+    background-color: #f9f9f9;
+}
+
+/* --- 票種/早鳥設定專用樣式 --- */
+.events-ticket-input {
+    width: 100%;
+    padding: 6px;
+    border: 1px solid var(--events-border);
+    border-radius: 4px;
+    text-align: center;
+}
+
+/* 早鳥輸入框群組 */
+.events-eb-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    font-size: 0.9rem;
+    color: var(--events-gray-dark);
+    flex-wrap: nowrap !important;
+    white-space: nowrap !important;
+}
+
+.events-eb-input {
+    width: 50px;
+    padding: 4px;
+    border: 1px solid var(--events-border);
+    border-radius: 4px;
+    text-align: center;
+}
+
+.events-eb-input:focus {
+    border-color: var(--events-orange);
+    outline: none;
+}
+
+.events-eb-price {
+    font-weight: 800;
+    color: var(--events-orange);
+    border: none;
+    background: transparent;
+    width: 50px;
+    font-size: 13px;
+    text-align: left;
+    margin-left: 2px;
+}
+
+/* --- 工具列 (搜尋/排序) --- */
+.events-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.events-search-input {
+    padding: 8px 12px;
+    border: 1px solid var(--events-border);
+    border-radius: 20px;
+    /* 圓角搜尋框 */
+    width: 250px;
+}
+
+.events-pagination {
+    display: flex;
+    gap: 5px;
+}
+
+.events-page-btn {
+    padding: 5px 10px;
+    border: 1px solid var(--events-border);
+    background: white;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.events-page-btn.active {
+    background: var(--events-orange);
+    color: white;
+    border-color: var(--events-orange);
+}
+
+.events-ticket-name-wrapper {
+    width: 100%;
+    container-type: inline-size;
+    text-align: center;
+
+}
+
+.events-ticket-name {
+    font-weight: bold;
+
+    white-space: nowrap;
+    font-size: clamp(12px, 15cqw, 15px);
+
+    color: var(--events-black);
+}
+
+/* --- 動畫 --- */
+@keyframes eventsFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

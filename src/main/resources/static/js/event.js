@@ -29,6 +29,32 @@ function initEventFormSubmit() {
     const form = document.getElementById("eventForm");
     if (!form) return;
 
+    // --- 1. 初始化小時下拉選單 (00:00 ~ 23:00) ---
+    const hourSelects = ["eventStartHour", "eventEndHour", "ticketStartHour"];
+    hourSelects.forEach(id => {
+        const select = document.getElementById(id);
+        if (!select) return;
+        for (let i = 0; i < 24; i++) {
+            const hour = i.toString().padStart(2, '0');
+            const option = document.createElement("option");
+            option.value = `${hour}:00`;
+            option.text = `${hour}:00`;
+            select.appendChild(option);
+        }
+    });
+
+    // --- 2. 設定日期限制 (不能選過去) ---
+    const dateInputs = ["eventStartDate", "eventEndDate", "ticketStartDate"];
+    // 取得今天的 YYYY-MM-DD (台灣時間)
+    const now = new Date();
+    const offset = now.getTimezoneOffset() * 60000;
+    const today = new Date(now.getTime() - offset).toISOString().split("T")[0];
+
+    dateInputs.forEach(id => {
+        const input = document.getElementById(id);
+        if (input) input.min = today;
+    });
+
     const coverInput = document.getElementById("cover");
     if (coverInput) {
         coverInput.addEventListener("change", function () {
@@ -48,6 +74,47 @@ function initEventFormSubmit() {
 
     form.addEventListener("submit", function (e) {
         e.preventDefault();
+
+        const combineTime = (dateId, hourId, hiddenId) => {
+            const dateVal = document.getElementById(dateId).value;
+            const hourVal = document.getElementById(hourId).value;
+            const hiddenInput = document.getElementById(hiddenId);
+            if (dateVal && hourVal) {
+                // 組合格式：YYYY-MM-DDTHH:mm
+                hiddenInput.value = `${dateVal}T${hourVal}`;
+            }
+        };
+
+        // 執行組合
+        combineTime("eventStartDate", "eventStartHour", "eventStart");
+        combineTime("eventEndDate", "eventEndHour", "eventEnd");
+        combineTime("ticketStartDate", "ticketStartHour", "ticketStart");
+
+        // --- 邏輯檢查 ---
+        const startVal = document.getElementById("eventStart").value; // 剛剛組合好的值
+        const endVal = document.getElementById("eventEnd").value;
+
+        if (!startVal || !endVal) {
+            alert("請完整選擇日期與時間！");
+            return;
+        }
+
+        const startDate = new Date(startVal);
+        const endDate = new Date(endVal);
+
+        // 檢查：活動開始時間必須是「今天 + 7天」以後
+        const limitDate = new Date();
+        limitDate.setDate(limitDate.getDate() + 7);
+        limitDate.setHours(0, 0, 0, 0);
+
+        if (startDate < limitDate) {
+            alert("活動開始時間必須在「一週後」才能建立！");
+            return;
+        }
+        if (endDate <= startDate) {
+            alert("活動結束時間必須晚於開始時間！");
+            return;
+        }
 
         // 判斷新增 or 編輯（靠 editingEventId）
         const mode = editingEventId ? "edit" : "create";
@@ -124,16 +191,10 @@ function initEventFormSubmit() {
 }
 
 // 編輯按鈕
-function goEdit(id) {
+function goEdit(id, btn) {
 
     const targetId = Number(id);
     const currentEditingId = editingEventId ? Number(editingEventId) : null;
-
-    console.log("狀態檢查:", {
-        targetId: targetId,
-        currentEditingId: currentEditingId,
-        isMatch: targetId === currentEditingId
-    });
 
     if (currentEditingId !== null && currentEditingId === targetId) {
         // 取消編輯
@@ -142,9 +203,18 @@ function goEdit(id) {
         return;
     }
 
-
     resetEventForm();
     editingEventId = targetId;
+
+    document.querySelectorAll(".edit-btn").forEach(b => {
+        b.textContent = "編輯";
+        b.className = "events-btn events-btn-secondary edit-btn";
+    });
+
+    if (btn) {
+        btn.textContent = "取消";
+        btn.className = "events-btn events-btn-danger edit-btn"; // 變紅
+    }
 
     fetch(`/api/events/${targetId}`)
         .then(res => res.json())
@@ -157,10 +227,41 @@ function goEdit(id) {
             // 填入表單欄位
             document.getElementById("title").value = ev.title || "";
             document.getElementById("address").value = ev.address || "";
-            document.getElementById("eventStart").value = formatDatetimeLocal(ev.eventStart);
-            document.getElementById("eventEnd").value = formatDatetimeLocal(ev.eventEnd);
-            document.getElementById("ticketStart").value = formatDatetimeLocal(ev.ticketStart);
             document.getElementById("description").value = ev.description || "";
+            // --- 時間回填邏輯 (拆解並填入) ---
+            const fillDateTime = (isoString, dateId, hourId, hiddenId) => {
+                if (!isoString) return;
+                const d = new Date(isoString);
+
+                // 轉成 YYYY-MM-DD
+                const year = d.getFullYear();
+                const month = String(d.getMonth() + 1).padStart(2, '0');
+                const day = String(d.getDate()).padStart(2, '0');
+                const dateStr = `${year}-${month}-${day}`;
+
+                // 轉成 HH:00
+                const hour = String(d.getHours()).padStart(2, '0');
+                const timeStr = `${hour}:00`;
+
+                // 填入顯示欄位
+                const dateInput = document.getElementById(dateId);
+                const hourInput = document.getElementById(hourId);
+                const hiddenInput = document.getElementById(hiddenId);
+
+                if (dateInput) dateInput.value = dateStr;
+                if (hourInput) hourInput.value = timeStr;
+                // 也要填入 hidden 欄位，以免沒改時間直接送出時變空的
+                if (hiddenInput) hiddenInput.value = isoString;
+            };
+
+            fillDateTime(ev.eventStart, "eventStartDate", "eventStartHour", "eventStart");
+            fillDateTime(ev.eventEnd, "eventEndDate", "eventEndHour", "eventEnd");
+            fillDateTime(ev.ticketStart, "ticketStartDate", "ticketStartHour", "ticketStart");
+
+            // 展開下拉式選單
+            const dropdown = document.getElementById("ticketDropdown");
+            if (dropdown) dropdown.style.display = "block";
+
             document.getElementById("cover").addEventListener("change", function () {
                 const file = this.files[0];
                 updateCoverPreview(file || null);
@@ -195,25 +296,22 @@ function goEdit(id) {
 
                 // 回填早鳥設定
                 const earlyBirdCheckbox = row.querySelector(".early-bird-checkbox");
-
-                // 1. 設定早鳥啟用狀態
                 earlyBirdCheckbox.checked = t.isEarlyBird === true;
 
-                // 2. 立即觸發 change()，讓欄位生成
+                // 立即觸發 change()，讓欄位生成
                 earlyBirdCheckbox.dispatchEvent(new Event("change"));
 
-                // 3. 欄位建立後再抓
+                // 欄位建立後再抓
                 const earlyBirdDaysInput = row.querySelector(".early-bird-days");
                 const discountRateInput = row.querySelector(".early-bird-discount");
 
-                // 4. 回填天數
-                if (earlyBirdDaysInput) {
-                    earlyBirdDaysInput.value = t.earlyBirdDays ?? "";
-                }
-
-                // 5. 回填折扣
-                if (discountRateInput) {
-                    discountRateInput.value = t.discountRate ?? "";
+                if (t.isEarlyBird) {
+                    if (earlyBirdDaysInput) earlyBirdDaysInput.value = t.earlyBirdDays ?? "";
+                    if (discountRateInput) {
+                        discountRateInput.value = t.discountRate ?? "";
+                        // 觸發 input 事件讓價格自動計算出來
+                        discountRateInput.dispatchEvent(new Event("input"));
+                    }
                 }
             });
 
@@ -266,15 +364,16 @@ function initTicketTypeLoader() {
 
             // 生成表格標頭
             dropdown.innerHTML = `
-                <table class="ticket-select-table" style="width:100%; border-collapse: collapse;">
+
+            <table class="events-table">
                     <thead>
                         <tr>
-                            <th style="border:1px solid #ccc; padding:6px;">啟用</th>
-                            <th style="border:1px solid #ccc; padding:6px;">票種名稱</th>
-                            <th style="border:1px solid #ccc; padding:6px;">活動票價</th>
-                            <th style="border:1px solid #ccc; padding:6px;">活動限量</th>
-                            <th style="border:1px solid #ccc; padding:6px;">描述</th>
-                            <th style="padding:8px;">早鳥優惠設定</th> </tr>
+                            <th style="width:50px; text-align:center;">啟用</th>
+                            <th>票種名稱</th>
+                            <th style="width:100px;">活動票價</th>
+                            <th style="width:100px;">活動限量</th>
+                            <th>描述</th>
+                            <th style="width:350px;">早鳥優惠設定</th>
                         </tr>
                     </thead>
                     <tbody id="ticketSelectTbody"></tbody>
@@ -286,36 +385,39 @@ function initTicketTypeLoader() {
             ticketTypes.forEach((ticket) => {
                 const row = document.createElement("tr");
                 row.id = `ticketRow_${ticket.id}`;
-                row.style.borderBottom = "1px solid #eee";
 
                 row.innerHTML = `
-                <td style="border:1px solid #ccc; padding:6px; text-align:center;">
-                    <input type="checkbox" class="ticket-checkbox" value="${ticket.id}">
+                <td style="text-align:center;">
+                    <input type="checkbox" class="ticket-checkbox" value="${ticket.id}" style="cursor:pointer; width:18px; height:18px; accent-color:#f07509;">
                 </td>
 
-                <td style="padding:8px;">
-                    <div style="font-weight:bold;">${ticket.name} ${ticket.isDefault ? '<span style="font-size:0.8em; color:#888;">(預設)</span>' : ''}</div>
+                <td style="padding: 8px;">
+                    <div class="events-ticket-name-wrapper">
+                        <span class="events-ticket-name">
+                            ${ticket.name} ${ticket.isDefault ? '<span style="font-size:0.8em; color:#888;">(預設)</span>' : ''}
+                        </span>
+                    </div>
                 </td>
 
-                <td style="padding:8px; text-align:center;">
-                    <input type="number" class="ticket-custom-price" 
-                            placeholder="${ticket.price}" style="width:80px; padding:4px;">
+                <td>
+                    <input type="number" class="events-input ticket-custom-price" 
+                            placeholder="${ticket.price}" style="padding:5px;">
                 </td>
 
-                <td style="padding:8px; text-align:center;">
-                    <input type="number" class="ticket-custom-limit" 
-                            placeholder="${ticket.isLimited ? ticket.limitQuantity : '無'}" style="width:80px; padding:4px;">
+                <td>
+                    <input type="number" class="events-input ticket-custom-limit" 
+                            placeholder="${ticket.isLimited ? ticket.limitQuantity : '無'}" style="padding:5px;">
                 </td>
 
-                <td style="padding:8px; color:#666; font-size:0.9em;">
-                    ${ticket.description ? ticket.description.substring(0, 10) + (ticket.description.length > 10 ? '...' : '') : "-"}
+                <td style="color:#666; font-size:0.9em;">
+                    ${ticket.description ? ticket.description : "-"}
                 </td>
+
                 <td style="padding:8px;">
                     <div style="margin-bottom: 5px;">
                         <input type="checkbox" class="early-bird-checkbox" id="eb_cb_${ticket.id}" style="cursor:pointer;">
                         <label for="eb_cb_${ticket.id}" style="cursor:pointer; font-size:0.9rem;">啟用早鳥</label>
                     </div>
-                    
                     <div class="eb-settings-container" style="display:none; margin-top:4px;"></div>
                 </td>
             `;
@@ -339,16 +441,16 @@ function earlyBirdForm(row) {
 
             // 注入 HTML (加上 min="1" 防止輸入負數)
             container.innerHTML = `
-                <div style="display:flex; align-items:center; gap:5px; flex-wrap:wrap; font-size:0.9rem;">
-                    <span>開始售票後</span>
+                <div class="events-eb-wrapper" style="display:flex; align-items:center; gap:5px; flex-wrap:wrap; font-size:0.9rem;">
+                    <span>開始售票</span>
                     <input type="number" class="early-bird-days" placeholder="5" min="1" style="width:50px; padding:3px;">
-                    <span>天，打</span>
+                    <span>天內，打</span>
                     <input type="number" class="early-bird-discount" placeholder="85" min="1" max="99" style="width:50px; padding:3px;">
                     <span>折</span>
                     <span style="color:#aaa; margin-left:5px;">➜</span>
-                    <span style="color:#e65100; font-weight:bold;">$</span>
+                    <span font-weight:bold;">$</span>
                     <input type="text" class="early-bird-final-price" readonly 
-                            style="width:60px; background:transparent; border:none; font-weight:bold;" tabindex="-1">
+                            style="width:30px; background:transparent; border:none; font-weight:bold;" tabindex="-1">
                 </div>
             `;
 
@@ -524,6 +626,10 @@ function resetEventForm() {
     const form = document.getElementById("eventForm");
     if (form) form.reset();
 
+    document.getElementById("eventStart").value = "";
+    document.getElementById("eventEnd").value = "";
+    document.getElementById("ticketStart").value = "";
+
     const coverInput = document.getElementById("cover");
     if (coverInput) coverInput.value = "";
 
@@ -547,15 +653,21 @@ function resetEventForm() {
 
 function clearAllTicketRows() {
     document.querySelectorAll("#ticketSelectTbody tr").forEach(row => {
-        row.querySelector(".ticket-checkbox").checked = false;
-        row.querySelector(".ticket-custom-price").value = "";
-        row.querySelector(".ticket-custom-limit").value = "";
+        // 1. 重置基本勾選與輸入框
+        const ticketCheckbox = row.querySelector(".ticket-checkbox");
+        if (ticketCheckbox) ticketCheckbox.checked = false;
 
-        // Early bird 清空
-        row.querySelector(".early-bird-checkbox").checked = false;
-        row.querySelector(".eb-days-cell").innerHTML = "";
-        row.querySelector(".eb-discount-cell").innerHTML = "";
-        row.querySelector(".eb-final-cell").innerHTML = "";
+        const priceInput = row.querySelector(".ticket-custom-price");
+        if (priceInput) priceInput.value = "";
+
+        const limitInput = row.querySelector(".ticket-custom-limit");
+        if (limitInput) limitInput.value = "";
+
+        const ebCheckbox = row.querySelector(".early-bird-checkbox");
+        if (ebCheckbox) {
+            ebCheckbox.checked = false;
+            ebCheckbox.dispatchEvent(new Event("change"));
+        }
     });
 }
 
@@ -581,7 +693,7 @@ function loadEventList() {
             }
 
             let html = `
-                <table border="1" cellspacing="0" cellpadding="6">
+                <table class="events-table">
                     <thead>
                         <tr>
                             <th>活動名稱</th>
@@ -607,19 +719,17 @@ function loadEventList() {
                 let actionButtons = "";
 
                 if (canEdit) {
-                    const btnClass = isEditing ? "edit-btn editing" : "edit-btn";
+                    const btnClass = isEditing ? "events-btn events-btn-danger editing" : "events-btn events-btn-secondary";
                     const btnText = isEditing ? "取消" : "編輯";
 
-                    actionButtons += `<button class="${btnClass}" onclick="goEdit(${ev.id}, this)">
-                        ${btnText}
-                    </button>`;
+                    actionButtons += `<button class="${btnClass} events-btn events-btn-secondary edit-btn" onclick="goEdit(${ev.id}, this)">${btnText}</button>`;
                 } else {
-                    actionButtons += `<button class="edit-btn" disabled style="opacity:0.4; cursor:not-allowed;">編輯</button>`;
+                    actionButtons += `<button class="events-btn events-btn-danger cancel-btn" disabled style="opacity:0.4; cursor:not-allowed;">編輯</button>`;
                 }
 
                 if (canCancel) {
                     actionButtons += `
-                        <button class="cancel-btn"
+                        <button class="events-btn events-btn-danger cancel-btn"
                                 onclick="cancelEvent(${ev.id})"
                                 style="color:red; margin-left:6px;">
                             取消活動
@@ -762,15 +872,15 @@ function renderEventPagination(data) {
     let html = "";
 
     if (!data.first) {
-        html += `<button onclick="gotoPage(${eventQuery.page - 1})">上一頁</button>`;
+        html += `<button class="events-page-btn" onclick="gotoPage(${eventQuery.page - 1})">上一頁</button>`;
     }
 
     for (let i = 1; i <= data.totalPages; i++) {
-        html += `<button onclick="gotoPage(${i})" ${i === eventQuery.page ? "style='font-weight:bold;'" : ""}>${i}</button>`;
+        html += `<button class="events-page-btn" onclick="gotoPage(${i})" ${i === eventQuery.page ? "style='font-weight:bold;'" : ""}>${i}</button>`;
     }
 
     if (!data.last) {
-        html += `<button onclick="gotoPage(${eventQuery.page + 1})">下一頁</button>`;
+        html += `<button class="events-page-btn" onclick="gotoPage(${eventQuery.page + 1})">下一頁</button>`;
     }
 
     container.innerHTML = html;
@@ -802,7 +912,7 @@ function loadTicketTemplates() {
                         <td>${t.limitQuantity ?? "-"}</td>
                         <td>${t.description ?? ""}</td>
                         <td>
-                            <button type="button" onclick="applyTemplate(this)">
+                            <button class="events-btn events-btn-secondary"; type="button" onclick="applyTemplate(this)">
                                 套用
                             </button>
                         </td>
@@ -849,7 +959,6 @@ function applyTemplate(button) {
 
 }
 
-
 // 載入自訂表單列表
 function loadMyTickets() {
     fetch("/api/tickets/my")
@@ -869,13 +978,13 @@ function loadMyTickets() {
                         <td>${t.limitQuantity ?? "-"}</td>
                         <td>${t.description ?? ""}</td>
                         <td>
-                            <button class="ticket-edit-btn"
+                            <button class="events-btn events-btn-secondary ticket-edit-btn"
                                     data-mode="edit"
                                     onclick="editTicket(${t.id}, this)">
                                 編輯
                             </button>
                         </td>
-                        <td><button onclick="deleteTicket(${t.id})">刪除</button></td>
+                        <td><button class="events-btn events-btn-secondary" onclick="deleteTicket(${t.id})">刪除</button></td>
                     </tr>
                 `;
             });
@@ -950,6 +1059,9 @@ function editTicket(id, btn) {
 
             form.ticketDescription.value = t.description ?? "";
 
+            const cancelBtn = document.getElementById("ticketCancelBtn");
+            if (cancelBtn) cancelBtn.style.display = "inline-flex";
+
             // 送出按鈕文字改成「確認編輯」
             const submitBtn = document.querySelector("#ticketForm button[type='submit']");
             if (submitBtn) {
@@ -966,13 +1078,8 @@ function editTicket(id, btn) {
 }
 
 // 取消票種
-function cancelEditTicket(btn) {
+function cancelEditTicket() {
     resetTicketForm();
-
-    editingTicketId = null;
-
-    btn.textContent = "編輯";
-    btn.onclick = () => editTicketForm(btn.dataset.id, btn);
 }
 
 function resetTicketForm() {
@@ -989,6 +1096,9 @@ function resetTicketForm() {
 
     // 狀態回到「新增模式」
     editingTicketId = null;
+
+    const cancelBtn = document.getElementById("ticketCancelBtn");
+    if (cancelBtn) cancelBtn.style.display = "none";
 
     // 送出按鈕文字改回「新增票種」
     const submitBtn = document.querySelector("#ticketForm button[type='submit']");
