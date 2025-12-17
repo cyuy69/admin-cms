@@ -35,20 +35,6 @@
     text-align: center;
 }
 
-.select-event-btn {
-    background-color: #6b6f73;
-    color: #fff;
-    border: none;
-    padding: 10px 26px;
-    font-size: 16px;
-    border-radius: 6px;
-    cursor: pointer;
-}
-
-.select-event-btn:hover {
-    background-color: #3e4345;
-}
-
 .order-search-area {
     display: flex;
     justify-content: flex-end;
@@ -139,7 +125,7 @@
 .order-detail-close-btn {
     margin: 25px auto 0 auto;
     padding: 10px 40px;
-    background: #7c8087;
+    background: #f07509;
     border: none;
     border-radius: 6px;
     color: white;
@@ -149,7 +135,7 @@
 }
 
 .order-detail-close-btn:hover {
-    background: #576167;
+    background: #d66505;
 }
 
 
@@ -266,7 +252,8 @@
 
 .event-selected-item {
     padding: 10px 14px;
-    background: #f3f6ff;
+    color: white;
+    background: #4f5052;
     border: 1px solid #dce3f7;
     border-radius: 6px;
     cursor: pointer;
@@ -274,7 +261,7 @@
 }
 
 .event-selected-item:hover {
-    background: #dbe6ff;
+    background: #7d7e82;
 }
 
 /* 捲動條美化 */
@@ -285,40 +272,4 @@
 .event-selected-list::-webkit-scrollbar-thumb {
     background: #ccc;
     border-radius: 3px;
-}
-
-.clear-modal-btn {
-    background: #ececec;
-    padding: 8px 16px;
-    border-radius: 6px;
-    border: 1px solid #ccc;
-    cursor: pointer;
-}
-
-.clear-modal-btn:hover {
-    background: #e2e2e2;
-}
-
-.apply-modal-btn {
-    background: #ececec;
-    padding: 8px 16px;
-    border-radius: 6px;
-    border: 1px solid #ccc;
-    cursor: pointer;
-}
-
-.apply-modal-btn:hover {
-    background: #e2e2e2;
-}
-
-.close-modal-btn {
-    background: #ececec;
-    padding: 8px 16px;
-    border-radius: 6px;
-    border: 1px solid #ccc;
-    cursor: pointer;
-}
-
-.close-modal-btn:hover {
-    background: #e2e2e2;
 }

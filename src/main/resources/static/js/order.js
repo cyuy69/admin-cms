@@ -58,7 +58,7 @@ function initOrders() {
         // 無活動就顯示尚未選擇
         if (selectedEvents.length === 0) {
             box.innerHTML = `
-                <button id="openEventModalBtn" class="select-event-btn">選擇活動</button>
+                <button id="openEventModalBtn" class="events-btn events-btn-secondary">選擇活動</button>
                 <div class="placeholder">(尚未選擇活動)</div>
             `;
             if (tbody) tbody.innerHTML = "";
@@ -102,7 +102,7 @@ function initOrders() {
                     <td>${o.eventTitle}</td>
                     <td>${o.ticketCount}</td>
                     <td>${o.status}</td>
-                    <td><button class="order-detail-btn" data-id="${o.orderId}">詳情</button></td>
+                    <td><button class="events-btn events-btn-secondary order-detail-btn" data-id="${o.orderId}">詳情</button></td>
                 </tr>
             `;
         });
@@ -211,7 +211,7 @@ function initOrders() {
         // 搜尋訂單
         document.getElementById("orderSearchBtn")?.addEventListener("click", loadOrderList);
 
-        //  新增：事件代理方式處理「詳情」按鈕 
+        //  新增：事件代理方式處理「詳情」按鈕
         document.getElementById("orderTableBody")?.addEventListener("click", (e) => {
             if (e.target.classList.contains("order-detail-btn")) {
                 const orderId = e.target.dataset.id;

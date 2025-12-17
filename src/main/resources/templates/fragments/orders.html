@@ -5,7 +5,9 @@
     <!-- 選擇活動區塊 -->
     <div class="selected-event-box" id="selectedEventBox">
       <div class="selected-event-header">
-        <button id="openEventModalBtn" class="select-event-btn">選擇活動</button>
+        <button id="openEventModalBtn" class="select-event-btn">
+          選擇活動
+        </button>
       </div>
 
       <div id="selectedEventList" class="selected-event-content">
@@ -13,15 +15,20 @@
       </div>
     </div>
 
-
     <!-- 訂單查詢框 -->
     <div class="order-search-area">
-      <input type="text" id="orderSearchInput" placeholder="搜尋訂單編號或購買人" />
-      <button id="orderSearchBtn">查詢</button>
+      <input
+        type="text"
+        id="orderSearchInput"
+        placeholder="搜尋訂單編號或購買人"
+      />
+      <button id="orderSearchBtn" class="events-btn events-btn-primary">
+        查詢
+      </button>
     </div>
 
     <!-- 訂單表格 -->
-    <table class="order-table">
+    <table class="events-table">
       <thead>
         <tr>
           <th>訂單編號</th>
@@ -45,7 +52,12 @@
       <h3>選擇活動</h3>
 
       <!-- 搜尋活動 -->
-      <input type="text" id="eventSearchInput" class="event-search-input" placeholder="搜尋活動名稱..." />
+      <input
+        type="text"
+        id="eventSearchInput"
+        class="event-search-input"
+        placeholder="搜尋活動名稱..."
+      />
 
       <!-- 活動列表（動態載入 checkbox） -->
       <div id="eventList" class="event-list"></div>
@@ -55,9 +67,18 @@
 
       <!-- 按鈕列 -->
       <div class="event-modal-footer">
-        <button id="eventModalClose" class="close-modal-btn">關閉</button>
-        <button id="eventModalApply" class="apply-modal-btn">套用選擇</button>
-        <button id="clearEventSelectionBtn" class="clear-modal-btn">清空選擇</button>
+        <button id="eventModalClose" class="events-btn events-btn-primary">
+          關閉
+        </button>
+        <button id="eventModalApply" class="events-btn events-btn-primary">
+          套用選擇
+        </button>
+        <button
+          id="clearEventSelectionBtn"
+          class="events-btn events-btn-primary"
+        >
+          清空選擇
+        </button>
       </div>
     </div>
   </div>
@@ -82,15 +103,13 @@
 
         <tfoot>
           <tr class="order-detail-total-row">
-            <td colspan="3" style="text-align:right;">總金額</td>
+            <td colspan="3" style="text-align: right">總金額</td>
             <td id="orderDetailTotal"></td>
           </tr>
         </tfoot>
       </table>
 
-      <button id="orderDetailClose" class="order-detail-close-btn">
-        關閉
-      </button>
+      <button id="orderDetailClose" class="order-detail-close-btn">關閉</button>
     </div>
   </div>
 </div>
