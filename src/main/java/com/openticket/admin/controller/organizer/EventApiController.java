@@ -315,18 +315,6 @@ public class EventApiController {
         return ResponseEntity.ok("活動已取消");
     }
 
-    // @GetMapping("/all")
-    // public List<Map<String, Object>> listEvents() {
-    // return eventRepository.findAll().stream()
-    // .map(e -> {
-    // Map<String, Object> map = new HashMap<>();
-    // map.put("id", e.getId());
-    // map.put("title", e.getTitle());
-    // return map;
-    // })
-    // .collect(Collectors.toList());
-    // }
-
     @GetMapping("/my")
     public List<EventTitleDTO> getMyEventTitles(
             @RequestParam(required = false) String keyword) {
@@ -334,5 +322,4 @@ public class EventApiController {
         Long companyId = loginCompanyProvider.getCompanyId(); // TODO JWT
         return eventQueryService.getEventTitles(companyId, keyword);
     }
-
 }

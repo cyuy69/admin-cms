@@ -1,201 +1,185 @@
-/* analytics-wrapper 總容器 */
-.analytics-wrapper {
-    padding: 20px;
-    max-width: 1300px;
-    /* 增加一點寬度以容納所有內容 */
-    margin: 0 auto;
-    font-family: sans-serif;
-}
+/* analytics.css */
 
-hr {
-    border: 0;
-    border-top: 1px solid #ccc;
-    margin: 15px 0;
-}
-
-/* ====== 主要內容區塊：使用 Grid 實現兩欄佈局 ====== */
-.main-dashboard-grid {
+/* 佈局 Grid */
+.analytics-grid {
     display: grid;
-    /* 定義列：左側 (總覽/篩選) 佔約 1/4，右側 (KPI/圖表) 佔約 3/4 */
-    grid-template-columns: 1fr 3fr;
-    gap: 25px;
-    /* 左右欄之間的間距 */
+    grid-template-columns: 280px 1fr;
+    /* 左側固定寬度，右側自適應 */
+    gap: 20px;
+    align-items: start;
 }
 
-
-/* ================== 左側欄樣式 (left-sidebar) ================== */
-
-.left-sidebar {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
-/* 總覽卡片群組 */
-.summary-cards {
-    display: flex;
-    flex-direction: column;
-    gap: 0;
-    /* 卡片之間沒有間距 */
-    border: 1px solid #ccc;
-    /* 整個總覽區塊的外框 */
-}
-
-.summary-card {
-    padding: 10px 15px;
-    border-bottom: 1px solid #eee;
-    background-color: #fff;
-    color: #333;
-}
-
-.summary-card:last-child {
-    border-bottom: none;
-}
-
-.summary-card h4 {
-    margin: 5px 0 0 0;
-    font-size: 1.2em;
-}
-
-.current-selection {
-    background-color: #f0f0f0;
-    font-weight: bold;
-    color: #000;
-}
-
-/* 篩選控制項 (filter-controls) */
-.filter-controls {
-    display: flex;
-    height: 300px;
-}
-
-.filter-header {
-    background-color: #f0f0f0;
-    width: 30px;
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    padding-top: 5px;
-    border: 1px solid #ccc;
-    border-right: none;
-}
-
-.filter-icon {
-    font-size: 1.2em;
-    font-weight: bold;
-    line-height: 1;
-}
-
-.filter-list {
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    padding: 10px;
-    border: 1px solid #ccc;
-    background-color: #fff;
-    border-left: none;
-    overflow-y: auto;
-}
-
-#eventFilterList label {
-    display: block;
-    margin-bottom: 6px;
-    white-space: normal;
-}
-
-
-/* ================== 右側欄樣式 (right-content) ================== */
-
-.right-content {
+/* --- 左側欄樣式 --- */
+.analytics-sidebar {
     display: flex;
     flex-direction: column;
     gap: 20px;
 }
 
+.summary-section {
+    padding: 0 !important;
+    /* 覆蓋 events-section 的 padding，讓裡面自訂 */
+    overflow: hidden;
+}
 
-/* KPI 區塊：Flexbox 橫向排列 */
-.kpi-container {
+.summary-header {
+    background-color: var(--events-gray-light);
+    padding: 12px 15px;
+    font-weight: 700;
+    border-bottom: 1px solid var(--events-border);
+    color: var(--events-black);
+}
+
+.summary-item {
+    padding: 12px 15px;
+    border-bottom: 1px solid var(--events-border);
     display: flex;
     justify-content: space-between;
+    align-items: center;
+}
+
+.summary-item:last-child {
+    border-bottom: none;
+}
+
+.summary-item span {
+    font-size: 14px;
+    color: var(--events-gray-dark);
+}
+
+.summary-item h4 {
+    margin: 0;
+    color: var(--events-orange);
+    /* 數字用橘色強調 */
+    font-size: 18px;
+}
+
+/* 篩選器樣式 */
+.filter-section {
+    padding: 15px;
+}
+
+.filter-group {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 10px;
+}
+
+.radio-label {
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.radio-label input[type="radio"] {
+    accent-color: var(--events-orange);
+}
+
+.event-filter-list {
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid var(--events-border);
+    border-radius: 4px;
+    padding: 8px;
+    background: #fafafa;
+}
+
+.event-filter-list label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 0;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.event-filter-list input[type="checkbox"] {
+    accent-color: var(--events-orange);
+}
+
+/* --- 右側欄樣式 --- */
+.analytics-content {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* KPI Grid */
+.kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
     gap: 15px;
 }
 
 .kpi-card {
-    flex: 1;
-    /* 等寬分配 */
-    border: 1px solid #ccc;
-    padding: 15px;
     text-align: center;
-    border-radius: 5px;
-    background-color: #fff;
-}
-
-.kpi-card div {
-    font-size: 0.9em;
-    color: #666;
-}
-
-.kpi-card h3 {
-    margin: 5px 0 0 0;
-    font-size: 1.8em;
-    color: #333;
-}
-
-/* 圖表行：Flexbox 橫向排列 */
-.chart-row {
+    padding: 20px;
     display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.kpi-label {
+    font-size: 14px;
+    color: var(--events-gray-dark);
+    margin-bottom: 8px;
+}
+
+.kpi-value {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--events-black);
+    margin: 0;
+}
+
+/* 圖表區域 */
+.charts-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     gap: 20px;
 }
 
-.chart-box {
-    flex: 1;
-    /* 等寬分配 */
-    border: 1px solid #ccc;
-    padding: 15px;
-    border-radius: 5px;
-    background-color: #fff;
+.chart-card {
+    padding: 20px;
 }
 
-.chart-box h4 {
-    text-align: center;
-    margin-top: 0;
-    margin-bottom: 10px;
-    font-size: 1.1em;
+.chart-title {
+    margin: 0 0 15px 0;
+    font-size: 16px;
+    color: var(--events-black);
+    border-left: 4px solid var(--events-orange);
+    padding-left: 10px;
 }
 
-/* 圓餅圖/甜甜圈圖框 */
-.pie-box {
-    max-width: 800px;
+.chart-container {
+    position: relative;
     width: 100%;
+    height: 300px;
+}
+
+.pie-container {
+    height: 400px;
+    /* 圓餅圖高一點 */
+    max-width: 600px;
     margin: 0 auto;
-    padding: 15px;
-    border-radius: 5px;
-    background-color: #fff;
-
-    display: flex;
-    flex-direction: column;
-    align-items: center;
 }
 
-.pie-box h4 {
-    text-align: center;
-    margin-top: 0;
-    margin-bottom: 10px;
-    width: 100%;
-    font-size: 1.2em;
-}
+/* RWD: 手機版調整 */
+@media (max-width: 992px) {
+    .analytics-grid {
+        grid-template-columns: 1fr;
+        /* 變單欄 */
+    }
 
-/* 確保 canvas 響應式 */
-canvas {
-    max-width: 100%;
-    height: auto !important;
-}
+    .kpi-grid {
+        grid-template-columns: repeat(2, 1fr);
+        /* KPI 變兩欄 */
+    }
 
-#pieChart {
-    max-height: 400px;
-    margin: 0 auto;
-    display: block;
-    width: 100%;
-    aspect-ratio: 1 / 1;
+    .charts-grid {
+        grid-template-columns: 1fr;
+        /* 圖表變單欄 */
+    }
 }

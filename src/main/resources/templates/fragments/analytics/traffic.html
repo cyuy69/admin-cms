@@ -1,110 +1,124 @@
-<div th:fragment="content" class="analytics-wrapper">
-  <h2>流量與銷售分析</h2>
+<div th:fragment="content">
+  <div class="events-container">
+    <h2 class="events-title">流量與銷售分析</h2>
 
-  <hr />
+    <div class="analytics-grid">
+      <div class="analytics-sidebar">
+        <div class="events-section summary-section">
+          <div class="summary-header">總數據總覽</div>
+          <div class="summary-item">
+            <span>總瀏覽量</span>
+            <h4 id="totalViews">-</h4>
+          </div>
+          <div class="summary-item">
+            <span>總售出票數</span>
+            <h4 id="totalSales">-</h4>
+          </div>
+          <div class="summary-item">
+            <span>總營收</span>
+            <h4 id="totalRevenue">-</h4>
+          </div>
+          <div class="summary-item">
+            <span>選擇活動數</span>
+            <h4 id="totalEvents">-</h4>
+          </div>
+        </div>
 
-  <div class="main-dashboard-grid">
-    <div class="left-sidebar">
-      <div class="summary-cards">
-        <div class="summary-card current-selection">
-          <strong>總數據 ▼</strong>
-        </div>
-        <div class="summary-card">
-          總瀏覽量
-          <h4 id="totalViews">-</h4>
-        </div>
-        <div class="summary-card">
-          總售出票數
-          <h4 id="totalSales">-</h4>
-        </div>
-        <div class="summary-card">
-          總營收
-          <h4 id="totalRevenue">-</h4>
-        </div>
-        <div class="summary-card">
-          選擇活動數
-          <h4 id="totalEvents">-</h4>
-        </div>
-      </div>
+        <div class="events-section filter-section">
+          <h4 class="events-subtitle" style="margin-bottom: 10px">資料篩選</h4>
 
-      <div class="filter-controls">
-        <div class="filter-header">
-          <span class="filter-icon">▼</span>
-        </div>
-        <div class="filter-list">
-          <div class="mode-selector-in-list">
-            <label
-              ><input
-                type="radio"
-                name="mode"
-                value="merge"
-                checked
-              />合併模式</label
-            ><br />
-            <label
-              ><input type="radio" name="mode" value="compare" />比對模式</label
+          <div class="filter-group">
+            <label class="radio-label"
+              ><input type="radio" name="mode" value="merge" checked />
+              合併模式</label
+            >
+            <label class="radio-label"
+              ><input type="radio" name="mode" value="compare" />
+              比對模式</label
             >
           </div>
+
           <input
             type="text"
             id="eventSearch"
+            class="events-input"
             placeholder="搜尋活動..."
-            style="width: 100%; margin: 5px 0; padding: 4px"
+            style="margin-bottom: 10px"
           />
-          <div class="date-filter">
-            <label>開始日期：<input type="date" id="dateStart" /></label><br />
-            <label>結束日期：<input type="date" id="dateEnd" /></label>
-            <button id="resetDateBtn">重置日期</button>
-          </div>
 
-          <div id="eventFilterList"></div>
+          <div id="eventFilterList" class="event-filter-list"></div>
+
           <button
             id="loadMoreEventsBtn"
-            style="width: 100%; padding: 5px; margin-top: 5px; display: none"
+            class="events-btn events-btn-secondary"
+            style="width: 100%; margin-top: 10px; display: none"
           >
             顯示更多
           </button>
-        </div>
-      </div>
-    </div>
 
-    <div class="right-content">
-      <div class="kpi-container">
-        <div class="kpi-card">
-          <div>瀏覽量</div>
-          <h3 id="kpiViews">0</h3>
-        </div>
-        <div class="kpi-card">
-          <div>售出票數</div>
-          <h3 id="kpiSales">0</h3>
-        </div>
+          <hr class="events-divider" style="margin: 15px 0" />
 
-        <div class="kpi-card">
-          <div>收入</div>
-          <h3 id="kpiRevenue">0</h3>
-        </div>
+          <div class="date-filter-group">
+            <label class="events-label">開始日期：</label>
+            <input type="date" id="dateStart" class="events-input" />
 
-        <div class="kpi-card">
-          <div>平均轉換率</div>
-          <h3 id="kpiConversion">0%</h3>
+            <label class="events-label" style="margin-top: 5px"
+              >結束日期：</label
+            >
+            <input type="date" id="dateEnd" class="events-input" />
+
+            <button
+              id="resetDateBtn"
+              class="events-btn events-btn-secondary"
+              style="width: 100%; margin-top: 10px"
+            >
+              重置日期
+            </button>
+          </div>
         </div>
       </div>
 
-      <div class="chart-row">
-        <div class="chart-box">
-          <h4>流量折線圖</h4>
-          <canvas id="trafficChart"></canvas>
+      <div class="analytics-content">
+        <div class="kpi-grid">
+          <div class="events-section kpi-card">
+            <div class="kpi-label">區間瀏覽量</div>
+            <h3 id="kpiViews" class="kpi-value">0</h3>
+          </div>
+          <div class="events-section kpi-card">
+            <div class="kpi-label">區間售出票數</div>
+            <h3 id="kpiSales" class="kpi-value">0</h3>
+          </div>
+          <div class="events-section kpi-card">
+            <div class="kpi-label">區間營收</div>
+            <h3 id="kpiRevenue" class="kpi-value">0</h3>
+          </div>
+          <div class="events-section kpi-card">
+            <div class="kpi-label">平均轉換率</div>
+            <h3 id="kpiConversion" class="kpi-value">0%</h3>
+          </div>
         </div>
 
-        <div class="chart-box">
-          <h4>收入折線圖</h4>
-          <canvas id="salesChart"></canvas>
+        <div class="charts-grid">
+          <div class="events-section chart-card">
+            <h4 class="chart-title">流量趨勢</h4>
+            <div class="chart-container">
+              <canvas id="trafficChart"></canvas>
+            </div>
+          </div>
+          <div class="events-section chart-card">
+            <h4 class="chart-title">營收趨勢</h4>
+            <div class="chart-container">
+              <canvas id="salesChart"></canvas>
+            </div>
+          </div>
         </div>
-      </div>
 
-      <div class="pie-box">
-        <h4>售出票種比例</h4>
-        <canvas id="pieChart"></canvas>
+        <div class="events-section chart-card">
+          <h4 class="chart-title">售出票種比例</h4>
+          <div class="chart-container pie-container">
+            <canvas id="pieChart"></canvas>
+          </div>
+        </div>
       </div>
     </div>
   </div>

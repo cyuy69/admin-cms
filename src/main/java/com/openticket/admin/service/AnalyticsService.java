@@ -147,8 +147,8 @@ public class AnalyticsService {
         Map<LocalDate, Integer> salesMap = new HashMap<>();
         for (Object[] row : salesRaw) {
             LocalDate date = ((java.sql.Date) row[0]).toLocalDate();
-            BigDecimal amount = (BigDecimal) row[1];
-            salesMap.put(date, amount.intValue());
+            BigDecimal amount = (BigDecimal) row[1]; // sum(unit_price * quantity)
+            salesMap.put(date, amount == null ? 0 : amount.intValue());
         }
 
         // 補到days的長度
@@ -233,7 +233,7 @@ public class AnalyticsService {
         Map<String, Integer> pieMap = new LinkedHashMap<>();
 
         for (Object[] row : pieRows) {
-            String ticketName = (String) row[0];
+            String ticketName = String.valueOf(row[0]);
             int qty = ((Number) row[1]).intValue();
             pieMap.put(ticketName, qty);
         }

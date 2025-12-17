@@ -200,9 +200,9 @@ async function loadFilterEventList() {
     if (!listContainer) return;
 
     // 取得所有活動
-    let resp = await fetch("/api/events");
-    let page = await resp.json();
-    allEvents = page.content || [];
+    let resp = await fetch("/api/events/my");
+    const text = await resp.text();
+    allEvents = JSON.parse(text);
 
     // 排序:最新(id最大)→ 最舊
     allEvents.sort((a, b) => b.id - a.id);
@@ -218,7 +218,6 @@ async function loadFilterEventList() {
     }
 
     setDefaultDateRange();
-
     // 初始化：顯示前 10 個
     visibleEvents = 10;
 
@@ -268,7 +267,7 @@ function renderEventList() {
         listContainer.insertAdjacentHTML("beforeend", `
             <label>
                 <input type="checkbox" class="event-check" value="${ev.id}" ${checked ? "checked" : ""}>
-                ${ev.title}
+                <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${ev.title}</span>
             </label>
         `);
     });
