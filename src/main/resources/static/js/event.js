@@ -627,6 +627,7 @@ function initEventDescriptionEditor() {
 
     tinymce.init({
         selector: "#description",
+        valid_elements: '*[*]',
         height: 300,
         menubar: false,
         branding: false,
@@ -639,6 +640,26 @@ function initEventDescriptionEditor() {
             "alignleft aligncenter alignright | " +
             "bullist numlist | link table | hr |" +
             "code preview",
+        formats: {
+            alignleft: [
+                { selector: 'p', classes: 'text-left' },
+                { selector: 'ul', classes: 'text-left' },
+                { selector: 'ol', classes: 'text-left' },
+                { selector: 'li', classes: 'text-left' }
+            ],
+            aligncenter: [
+                { selector: 'p', classes: 'text-center' },
+                { selector: 'ul', classes: 'text-center' },
+                { selector: 'ol', classes: 'text-center' },
+                { selector: 'li', classes: 'text-center' }
+            ],
+            alignright: [
+                { selector: 'p', classes: 'text-right' },
+                { selector: 'ul', classes: 'text-right' },
+                { selector: 'ol', classes: 'text-right' },
+                { selector: 'li', classes: 'text-right' }
+            ]
+        },
 
         content_style: `
             body { text-align: center; }
